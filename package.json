@@ -1,0 +1,21 @@
+{
+  "name": "deberts-game-design",
+  "version": "0.0.1",
+  "description": "Deberts card game logic",
+  "main": "index.js",
+  "scripts": {
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "deberts",
+    "cards",
+    "game",
+    "card game"
+  ],
+  "author": "Alex Terliuk <alex.terliuk@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "prettier": "2.2.1"
+  }
+}
