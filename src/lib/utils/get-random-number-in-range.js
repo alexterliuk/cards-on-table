@@ -3,7 +3,7 @@ import { areNumbers } from './value-checkers';
 /**
  * Creates a number within specified range.
  * Automatically defines which num is min, and which is max.
- *   @returns {number} - floating number from min to max (excluding min and max), or 0.
+ * @returns {number} - floating number from min to max (excluding min and max), or 0.
  */
 function getRandomNumberInRange(num1, num2) {
   if (!areNumbers(num1, num2)) return 0;
