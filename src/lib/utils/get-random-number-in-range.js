@@ -1,4 +1,4 @@
-import { areNumbers } from './value-checkers.js';
+import { areNumbers } from './value-checkers';
 
 /**
  * Creates a number within specified range.
