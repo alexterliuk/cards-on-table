@@ -2,7 +2,7 @@ import { isArray, isFunction } from './value-checkers';
 
 /**
  * @param {array} arr
- * @param {function} klass - Class to check whether val is instance of it
+ * @param {function} klass - class to check whether val is instance of it
  * @param {boolean} allowEmptyArr - should empty arr be evaluated to true
  * @returns {undefined|boolean}
  */
