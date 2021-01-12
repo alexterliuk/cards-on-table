@@ -11,3 +11,15 @@ export const defaultSuitData = [
   ['eight', 0, 2],
   ['seven', 0, 1],
 ];
+
+export const defaultTrumpSuitData = [
+  // name, value, rank
+  ['jack', 20, 8],
+  ['nine', 14, 7],
+  ['ace', 11, 6],
+  ['ten', 10, 5],
+  ['king', 4, 4],
+  ['queen', 3, 3],
+  ['eight', 0, 2],
+  ['seven', 0, 1],
+];
