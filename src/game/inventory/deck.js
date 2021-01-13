@@ -7,19 +7,38 @@ import { getPositiveIntegerOrZero } from '../../lib/utils/value-checkers';
 import getRandomFloor from '../../lib/utils/get-random-floor';
 import areValidValsByInstance from '../../lib/utils/are-valid-vals-by-instance';
 
-export default class Deck {
+class DeckConstructor {
+  constructor() {
+    this.constructDeck = (thisArg, suitNames, singleSuitData) => {
+      thisArg.suitNames = suitNames;
+      thisArg.trumpSuit = '';
+      thisArg.openedTrumpCard = null;
+      thisArg.shuffledLastTime = 0;
+      // create suits
+      thisArg.suitNames.forEach(
+        n => (thisArg[n] = new Suit(n, singleSuitData))
+      );
+      thisArg.allCards = thisArg.suitNames.reduce(
+        (acc, n) => [...acc, ...thisArg[n].cards],
+        []
+      );
+      thisArg.takenCards = [];
+    };
+  }
+}
+
+export default class Deck extends DeckConstructor {
   constructor(suitNames, singleSuitData) {
-    this.suitNames = suitNames;
-    this.trumpSuit = '';
-    this.openedTrumpCard = null;
-    this.shuffledLastTime = 0;
-    // create suits
-    this.suitNames.forEach(n => (this[n] = new Suit(n, singleSuitData)));
-    this.allCards = this.suitNames.reduce(
-      (acc, n) => [...acc, ...this[n].cards],
-      []
-    );
-    this.takenCards = [];
+    super();
+    this.constructDeck(this, suitNames, singleSuitData);
+
+    this.resetState = (() => {
+      const _suitNames = [...suitNames];
+      const _singleSuitData = [...singleSuitData];
+      return () => {
+        this.constructDeck(this, _suitNames, _singleSuitData);
+      };
+    })();
   }
 
   /**
@@ -185,7 +204,7 @@ export default class Deck {
 
     if (!plQ || !caQ) {
       throw new Error(
-        "playersQty, cardsQtyToPlayer aren't numbers or one of them is 0."
+        "playersQty, cardsQtyToPlayer aren't numbers or one/both of them is 0."
       );
     }
     if (typeof buyInCardsQty !== 'undefined' && !buQ) {
