@@ -5,11 +5,12 @@
   "author": "Alex Terliuk <alex.terliuk@gmail.com>",
   "license": "MIT",
   "main": "src/index.js",
+  "type": "module",
   "scripts": {
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha ./test/**/*.js"
   },
   "keywords": [
     "deberts",
