@@ -2,7 +2,7 @@ import { strictEqual as equal, throws } from 'assert';
 import Card from '../../../src/game/inventory/card.js';
 
 describe(`Card`, () => {
-  describe(`Card('ace', 11, 'spades', 8)`, () => {
+  describe(`new Card('ace', 11, 'spades', 8)`, () => {
     it(`creates a card { name: 'ace', value: 11, suit: 'spades', rank: 8, opened: false }`, () => {
       const card = new Card('ace', 11, 'spades', 8);
       equal(card.name, 'ace');
@@ -15,7 +15,7 @@ describe(`Card`, () => {
   });
 
   describe(`new Card is not created with invalid params`, () => {
-    it(`it throws`, function () {
+    it(`it throws`, () => {
       throws(() => new Card());
       throws(() => new Card(14));
       throws(() => new Card('ace', 'f'));
