@@ -18,6 +18,7 @@
     "card game"
   ],
   "devDependencies": {
+    "mocha": "8.2.1",
     "prettier": "2.2.1",
     "rollup": "^2.36.1"
   }
