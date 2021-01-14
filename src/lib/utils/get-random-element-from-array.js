@@ -1,5 +1,5 @@
-import { isArray } from './value-checkers';
-import getRandomFloor from './get-random-floor';
+import { isArray } from './value-checkers.js';
+import getRandomFloor from './get-random-floor.js';
 
 const getRandomElementFromArray = arr => {
   if (!isArray(arr)) return;

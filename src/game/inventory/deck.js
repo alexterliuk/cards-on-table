@@ -1,11 +1,9 @@
-'use strict';
-
-import Card from './card';
-import Suit from './suit';
-import shuffleArrayOfUniqueValues from '../../lib/shuffle-array-of-unique-values';
-import { getPositiveIntegerOrZero } from '../../lib/utils/value-checkers';
-import getRandomFloor from '../../lib/utils/get-random-floor';
-import areValidValsByInstance from '../../lib/utils/are-valid-vals-by-instance';
+import Card from './card.js';
+import Suit from './suit.js';
+import shuffleArrayOfUniqueValues from '../../lib/shuffle-array-of-unique-values.js';
+import { isArray, getPositiveIntegerOrZero } from '../../lib/utils/value-checkers.js';
+import getRandomFloor from '../../lib/utils/get-random-floor.js';
+import areValidValsByInstance from '../../lib/utils/are-valid-vals-by-instance.js';
 
 class DeckConstructor {
   constructor() {

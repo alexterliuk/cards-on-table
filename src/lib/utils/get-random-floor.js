@@ -1,4 +1,4 @@
-import getRandomNumberInRange from './get-random-number-in-range';
+import getRandomNumberInRange from './get-random-number-in-range.js';
 
 /**
  * @param {number} start

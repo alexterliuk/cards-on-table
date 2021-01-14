@@ -1,4 +1,4 @@
-import getRandomElementFromArray from './utils/get-random-element-from-array';
+import getRandomElementFromArray from './utils/get-random-element-from-array.js';
 
 const shuffleArrayOfUniqueValues = arr => {
   const shuffled = [];

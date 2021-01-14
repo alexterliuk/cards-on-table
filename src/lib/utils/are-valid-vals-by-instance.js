@@ -1,4 +1,4 @@
-import { isArray, isFunction } from './value-checkers';
+import { isArray, isFunction } from './value-checkers.js';
 
 /**
  * @param {array} arr
