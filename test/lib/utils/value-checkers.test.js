@@ -1,4 +1,4 @@
-import { strictEqual as equal, throws } from 'assert';
+import { strictEqual as equal } from 'assert';
 import {
   isObject,
   isRegExp,
