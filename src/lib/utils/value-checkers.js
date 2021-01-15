@@ -7,12 +7,10 @@ export const isNull = v => v === null;
 export const isArray = v => Array.isArray(v);
 
 export const isObject = v =>
-  typeof v === 'object' && !isNull(val) && !isArray(val) && !isRegExp(val);
+  typeof v === 'object' && !isNull(v) && !isArray(v) && !isRegExp(v);
 
 export const isRegExp = v =>
   typeof v !== 'undefined' && !isNull(v) && v.constructor.name === 'RegExp';
-
-export const isError = v => isObject(v) && v.constructor.name === 'Error';
 
 export const isString = v => typeof v === 'string';
 
@@ -47,4 +45,7 @@ export const getType = v =>
     : typeof v;
 
 export const getPositiveIntegerOrZero = v =>
-  isNumber(v) && !isNaN(v) && Number.isFinite(v) && v >= 0 ? Math.floor(v) : 0;
+  // Number(''...) is used to avoid -0
+  isNumber(v) && !isNaN(v) && Number.isFinite(v) && v >= 0
+    ? Number('' + Math.floor(v))
+    : 0;
