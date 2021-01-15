@@ -2,20 +2,26 @@
   "name": "deberts-game-design",
   "version": "0.0.1",
   "description": "Deberts card game logic",
-  "main": "index.js",
+  "author": "Alex Terliuk <alex.terliuk@gmail.com>",
+  "license": "MIT",
+  "main": "src/index.js",
+  "type": "module",
   "scripts": {
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "test": "mocha ./test/**/*.js"
   },
   "keywords": [
     "deberts",
+    "playing cards",
     "cards",
     "game",
     "card game"
   ],
-  "author": "Alex Terliuk <alex.terliuk@gmail.com>",
-  "license": "MIT",
   "devDependencies": {
-    "prettier": "2.2.1"
+    "mocha": "8.2.1",
+    "prettier": "2.2.1",
+    "rollup": "^2.36.1"
   }
 }
