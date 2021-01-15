@@ -1,7 +1,11 @@
 import Card from './card.js';
 import Suit from './suit.js';
 import shuffleArrayOfUniqueValues from '../../lib/shuffle-array-of-unique-values.js';
-import { isArray, getPositiveIntegerOrZero } from '../../lib/utils/value-checkers.js';
+import {
+  isArray,
+  isNumber,
+  getPositiveIntegerOrZero,
+} from '../../lib/utils/value-checkers.js';
 import getRandomFloor from '../../lib/utils/get-random-floor.js';
 import areValidValsByInstance from '../../lib/utils/are-valid-vals-by-instance.js';
 
@@ -9,7 +13,7 @@ class DeckConstructor {
   constructor() {
     this.constructDeck = (thisArg, suitNames, singleSuitData) => {
       thisArg.suitNames = suitNames;
-      thisArg.trumpSuit = '';
+      thisArg.trumpSuitName = '';
       thisArg.openedTrumpCard = null;
       thisArg.shuffledLastTime = 0;
       // create suits
@@ -28,11 +32,15 @@ class DeckConstructor {
 export default class Deck extends DeckConstructor {
   constructor(suitNames, singleSuitData) {
     super();
+    if (!isArray(suitNames)) suitNames = [];
+    if (!isArray(singleSuitData)) singleSuitData = [];
+
     this.constructDeck(this, suitNames, singleSuitData);
 
     this.resetState = (() => {
       const _suitNames = [...suitNames];
       const _singleSuitData = [...singleSuitData];
+      // TODO: make possible making id for each card
       return () => {
         this.constructDeck(this, _suitNames, _singleSuitData);
       };
@@ -52,7 +60,7 @@ export default class Deck extends DeckConstructor {
    * @returns {array} - with Cards
    */
   shuffleManyTimes(max = 100) {
-    let qty = getRandomFloor(0, getPositiveIntegerOrZero(max));
+    let qty = getRandomFloor(2, getPositiveIntegerOrZero(max));
     const shuffledQty = qty;
     while (qty--) {
       this.shuffle();
@@ -87,14 +95,15 @@ export default class Deck extends DeckConstructor {
   }
 
   /**
-   * @param {number} [idx]
+   * @param {number} [idxInTakenCards] - idx where the card is located in takenCards
    * @returns {boolean} - success or not
    */
-  returnCardToDeck(card, idx) {
+  returnCardToDeck(card, idxInTakenCards) {
     if (!(card instanceof Card)) return false;
 
     let foundCard =
-      this.takenCards[idx] ||
+      (isNumber(idxInTakenCards) &&
+        this.takenCards.splice(idxInTakenCards, 1)[0]) ||
       this.takenCards.find((c, i) => {
         if (c === card) {
           return this.takenCards.splice(i, 1);
@@ -140,7 +149,7 @@ export default class Deck extends DeckConstructor {
     }
 
     this.closeTrumpCardAndHide();
-    this.trumpSuit = '';
+    this.trumpSuitName = '';
 
     while (this.takenCards.length) {
       const card = this.takenCards.pop();
@@ -152,11 +161,13 @@ export default class Deck extends DeckConstructor {
   }
 
   makeTrumpSuit(suit) {
-    this.trumpSuit = suit.name;
+    if (!(suit instanceof Suit)) return false;
+    this.trumpSuitName = suit.name;
+    return true;
   }
 
   resetTrumpSuit() {
-    this.trumpSuit = '';
+    this.trumpSuitName = '';
   }
 
   openTrumpCard() {
