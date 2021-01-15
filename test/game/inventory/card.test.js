@@ -22,4 +22,19 @@ describe(`Card`, () => {
       throws(() => new Card('ace', 11, 'spades', false));
     });
   });
+
+  describe(`opens, closes card`, () => {
+    const card = new Card('ten', 10, 'clubs', 7);
+    it(`opens`, () => {
+      equal(card.opened, false);
+      card.open();
+      equal(card.opened, true);
+    });
+
+    it(`closes`, () => {
+      equal(card.opened, true);
+      card.close();
+      equal(card.opened, false);
+    });
+  });
 });
