@@ -3,7 +3,7 @@ import { isArray, isFunction } from './value-checkers.js';
 /**
  * @param {array} arr
  * @param {function} klass - class to check whether val is instance of it
- * @param {boolean} allowEmptyArr - should empty arr be evaluated to true
+ * @param {boolean} allowEmptyArr - whether return 'true' if arr is empty
  * @returns {undefined|boolean}
  */
 const areValidValsByInstance = (arr, klass, allowEmptyArr) => {
