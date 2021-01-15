@@ -1,6 +1,8 @@
+import { isArray } from './utils/value-checkers.js'
 import getRandomElementFromArray from './utils/get-random-element-from-array.js';
 
 const shuffleArrayOfUniqueValues = arr => {
+  if (!isArray(arr)) return [];
   const shuffled = [];
 
   while (arr.length) {
