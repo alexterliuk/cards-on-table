@@ -1,7 +1,7 @@
 {
-  "name": "deberts-game-design",
+  "name": "cards-on-table",
   "version": "0.0.1",
-  "description": "Deberts card game logic",
+  "description": "Playing cards",
   "author": "Alex Terliuk <alex.terliuk@gmail.com>",
   "license": "MIT",
   "main": "src/index.js",
@@ -14,7 +14,6 @@
     "test": "mocha ./test/**/*.js"
   },
   "keywords": [
-    "deberts",
     "playing cards",
     "cards",
     "game",
