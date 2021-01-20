@@ -1,65 +1,83 @@
-import Card from './card.js';
-import Suit from './suit.js';
-import shuffleArrayOfUniqueValues from '../../lib/shuffle-array-of-unique-values.js';
+import Card from './card';
+import Suit from './suit';
+import { DeckCardsData, SuitCardsData } from '../data/deck-cards-data';
+import shuffleArrayOfUniqueValues from '../../lib/shuffle-array-of-unique-values';
 import {
-  isArray,
   isNumber,
   getPositiveIntegerOrZero,
-} from '../../lib/utils/value-checkers.js';
-import getRandomFloor from '../../lib/utils/get-random-floor.js';
-import areValidValsByInstance from '../../lib/utils/are-valid-vals-by-instance.js';
+} from '../../lib/utils/value-checkers';
+import getRandomFloor from '../../lib/utils/get-random-floor';
+import areValidValsByInstance from '../../lib/utils/are-valid-vals-by-instance';
+
+interface Suits {
+  [x: string]: { name: string; cards: Card[] };
+}
 
 class DeckConstructor {
-  constructor() {
-    this.constructDeck = (thisArg, suitNames, singleSuitData) => {
-      thisArg.suitNames = suitNames;
-      thisArg.trumpSuitName = '';
-      thisArg.openedTrumpCard = null;
-      thisArg.shuffledLastTime = 0;
-      // create suits
-      thisArg.suitNames.forEach(
-        n => (thisArg[n] = new Suit(n, singleSuitData))
-      );
-      thisArg.allCards = thisArg.suitNames.reduce(
-        (acc, n) => [...acc, ...thisArg[n].cards],
-        []
-      );
-      thisArg.takenCards = [];
+  suitNames: string[] = [];
+  suits: Suits = {};
+  allCards: Card[] = [];
+  trumpSuitName = '';
+  openedTrumpCard: Card | null = null;
+  shuffledLastTime = 0;
+  takenCards: Card[] = [];
+  trumpSuitCardsData: SuitCardsData = [];
+  protected constructDeck: (deckCardsData: DeckCardsData) => void;
+  protected constructor() {
+    this.constructDeck = deckCardsData => {
+      [this.suitNames, this.suits, this.allCards] = !deckCardsData
+        ? [[], {}, []]
+        : deckCardsData.suitsData.reduce(
+            (acc: [string[], Suits, Card[]], suitData) => {
+              acc[0].push(suitData.name);
+              acc[1][suitData.name] = new Suit(suitData);
+              acc[2] = [...acc[2], ...acc[1][suitData.name].cards];
+              return acc;
+            },
+            [[], {}, []]
+          );
+
+      this.trumpSuitName = '';
+      this.openedTrumpCard = null;
+      this.shuffledLastTime = 0;
+      this.takenCards = [];
+      //this.trumpSuitCardsData = [];
     };
   }
 }
 
 export default class Deck extends DeckConstructor {
-  constructor(suitNames, singleSuitData) {
+  resetState;
+
+  constructor(deckCardsData: DeckCardsData) {
     super();
-    if (!isArray(suitNames)) suitNames = [];
-    if (!isArray(singleSuitData)) singleSuitData = [];
-
-    this.constructDeck(this, suitNames, singleSuitData);
-
+    this.constructDeck(deckCardsData);
     this.resetState = (() => {
-      const _suitNames = [...suitNames];
-      const _singleSuitData = [...singleSuitData];
+      const _deckCardsData = {
+        suitsData: deckCardsData?.suitsData.map(sd => ({
+          name: sd.name,
+          cardsData: sd.cardsData.map(cd => [...cd]),
+        })),
+        trumpSuitCardsData:
+          deckCardsData?.trumpSuitCardsData.map(cd => [...cd]) || [],
+      };
       // TODO: make possible making id for each card
       return () => {
-        this.constructDeck(this, _suitNames, _singleSuitData);
+        // _deckCardsData might not have all needed contents (e.g. suits, cards are empty)
+        // if a user creates a template deck (new Deck() -> deck with empty data);
+        // tell TS that it is allowed by 'as DeckCardsData'
+        this.constructDeck(_deckCardsData as DeckCardsData);
       };
     })();
   }
 
-  /**
-   * @returns {array} - with Cards
-   */
-  shuffle() {
+  shuffle(): Card[] {
     this.allCards = shuffleArrayOfUniqueValues(this.allCards);
     this.shuffledLastTime = 1;
     return this.allCards;
   }
 
-  /**
-   * @returns {array} - with Cards
-   */
-  shuffleManyTimes(max = 100) {
+  shuffleManyTimes(max = 100): Card[] {
     let qty = getRandomFloor(2, getPositiveIntegerOrZero(max));
     const shuffledQty = qty;
     while (qty--) {
@@ -74,20 +92,16 @@ export default class Deck extends DeckConstructor {
    * - dealing
    * - selecting who deals first in the game
    *   (by taking cards one by one until chosen one is found)
-   * @returns {Card}
    */
-  takeCardFromAllCards() {
-    if (!this.allCards.length) return;
+  takeCardFromAllCards(): Card | null {
+    if (!this.allCards.length) return null;
 
     this.takenCards.unshift(this.allCards.splice(0, 1)[0]);
     return this.takenCards[0];
   }
 
-  /**
-   * @returns {Card}
-   */
-  takeRandomCardFromAllCards() {
-    if (!this.allCards.length) return;
+  takeRandomCardFromAllCards(): Card | null {
+    if (!this.allCards.length) return null;
 
     const idx = getRandomFloor(0, this.allCards.length);
     this.takenCards.unshift(this.allCards.splice(idx, 1)[0]);
@@ -95,15 +109,16 @@ export default class Deck extends DeckConstructor {
   }
 
   /**
-   * @param {number} [idxInTakenCards] - idx where the card is located in takenCards
-   * @returns {boolean} - success or not
+   * @param card
+   * @param [idxInTakenCards] - idx where the card is located in takenCards
+   * @returns boolean - success or not
    */
-  returnCardToDeck(card, idxInTakenCards) {
+  returnCardToDeck(card: Card, idxInTakenCards?: number): boolean {
     if (!(card instanceof Card)) return false;
 
-    let foundCard =
+    const foundCard =
       (isNumber(idxInTakenCards) &&
-        this.takenCards.splice(idxInTakenCards, 1)[0]) ||
+        this.takenCards.splice(idxInTakenCards as number, 1)[0]) ||
       this.takenCards.find((c, i) => {
         if (c === card) {
           return this.takenCards.splice(i, 1);
@@ -122,10 +137,7 @@ export default class Deck extends DeckConstructor {
     return !!foundCard;
   }
 
-  /**
-   * @returns {Card|false}
-   */
-  returnRandomCardToDeck() {
+  returnRandomCardToDeck(): Card | false {
     if (!this.takenCards.length) return false;
 
     const idx = getRandomFloor(0, this.takenCards.length);
@@ -134,10 +146,7 @@ export default class Deck extends DeckConstructor {
     return returnedToDeck ? card : false;
   }
 
-  /**
-   * @returns {boolean} - success or not
-   */
-  returnAllCardsToDeck() {
+  returnAllCardsToDeck(): boolean {
     const allCardsValid = areValidValsByInstance(this.allCards, Card, true);
     const takenCardsValid = areValidValsByInstance(this.takenCards, Card, true);
     const allValid = allCardsValid && takenCardsValid;
@@ -153,14 +162,16 @@ export default class Deck extends DeckConstructor {
 
     while (this.takenCards.length) {
       const card = this.takenCards.pop();
-      card.close();
-      this.allCards.push(card);
+      if (card) {
+        card.close();
+        this.allCards.push(card);
+      }
     }
 
     return !this.takenCards.length && !!this.allCards.length;
   }
 
-  makeTrumpSuit(suit) {
+  makeTrumpSuit(suit: Suit) {
     if (!(suit instanceof Suit)) return false;
     this.trumpSuitName = suit.name;
     return true;
@@ -172,14 +183,12 @@ export default class Deck extends DeckConstructor {
 
   openTrumpCard() {
     this.openedTrumpCard = this.takeRandomCardFromAllCards();
-    this.openedTrumpCard.open();
+    this.openedTrumpCard?.open();
   }
 
   closeTrumpCard() {
-    if (this.openedTrumpCard instanceof Card) {
-      this.openedTrumpCard.close();
-      return true;
-    }
+    this.openedTrumpCard?.close();
+    return true;
   }
 
   closeTrumpCardAndHide() {
@@ -190,20 +199,25 @@ export default class Deck extends DeckConstructor {
   }
 
   /**
-   * @param {number} playersQty
-   * @param {number} cardsQtyToPlayer
-   * @param {number} [buyInCardsQty]
-   * @param {boolean} [openTrumpCard]
-   * @returns {array} - of arrays of two arrays for every player
-   *                    e.g. 3 players in the game:
-   *                         [
-   *                           [[given cards], [buy-in cards]],
-   *                           [[given cards], [buy-in cards]],
-   *                           [[given cards], [buy-in cards]],
-   *                         ]
+   * @param playersQty
+   * @param cardsQtyToPlayer
+   * @param [buyInCardsQty]
+   * @param [openTrumpCard]
+   * @returns array of arrays of two arrays for every player
+   *          e.g. 3 players in the game:
+   *               [
+   *                 [[given cards], [buy-in cards]],
+   *                 [[given cards], [buy-in cards]],
+   *                 [[given cards], [buy-in cards]],
+   *               ]
    */
   // TODO: these all params should be moved to game rules (to Deck's constructor)
-  deal(playersQty, cardsQtyToPlayer, buyInCardsQty, openTrumpCard) {
+  deal(
+    playersQty: number,
+    cardsQtyToPlayer: number,
+    buyInCardsQty?: number,
+    openTrumpCard?: boolean
+  ): Card[][][] {
     this.returnAllCardsToDeck();
     const [plQ, caQ, buQ] = [
       getPositiveIntegerOrZero(playersQty),
@@ -230,12 +244,12 @@ export default class Deck extends DeckConstructor {
       );
     }
 
-    const dealt = Array(playersQty)
+    const dealt: Card[][] = Array(playersQty)
       .fill(1)
-      .map(_ => []);
-    const dealtBuyIn = Array(playersQty)
+      .map(() => []);
+    const dealtBuyIn: Card[][] = Array(playersQty)
       .fill(1)
-      .map(_ => []);
+      .map(() => []);
 
     this.shuffleManyTimes();
 
@@ -251,7 +265,7 @@ export default class Deck extends DeckConstructor {
 
     return dealt.map((d, i) => [d, dealtBuyIn[i]]);
 
-    function dealCards(arr, qty, thisArg) {
+    function dealCards(arr: Card[][], qty: number, thisArg: Deck) {
       let given = 0;
       while (given !== qty) {
         arr.forEach(set => {
