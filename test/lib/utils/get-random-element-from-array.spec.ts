@@ -1,10 +1,12 @@
 import { strictEqual as equal } from 'assert';
-import getRandomElementFromArray from '../../../src/lib/utils/get-random-element-from-array.js';
+import getRandomElementFromArray from '../../../src/lib/utils/get-random-element-from-array';
 
 describe(`getRandomElementFromArray`, () => {
   describe(`returns undefined`, () => {
-    it(`if got not array or empty array`, () => {
+    it(`if got neither array, nor empty array`, () => {
+      // @ts-expect-error: expected 1 argument
       equal(getRandomElementFromArray(), undefined);
+      // @ts-expect-error: expected array
       equal(getRandomElementFromArray(true), undefined);
       equal(getRandomElementFromArray([]), undefined);
     });
