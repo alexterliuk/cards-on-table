@@ -7,11 +7,11 @@ import {
   isInfinity,
   getType,
   getPositiveIntegerOrZero,
-} from '../../../src/lib/utils/value-checkers.js';
+} from '../../../src/lib/utils/value-checkers';
 
-const areAllValsFalse = (func, vals) => {
-  return !vals.map(v => func(v)).filter(v => v).length;
-};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const areAllValsFalse = (func: (v: any) => boolean, vals: any[]): boolean =>
+  !vals.map(v => func(v)).filter(v => v).length;
 
 describe(`Value checkers`, () => {
   describe(`isObject`, () => {
@@ -21,7 +21,8 @@ describe(`Value checkers`, () => {
 
     it(`returns false if got smth else`, () => {
       // prettier-ignore
-      const smthElse = [null, 1, [], /ff/, '', () => {}, 1n, false, true, undefined];
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      const smthElse = [null, 1, [], /ff/, '', () => {}, false, true, undefined];
       equal(areAllValsFalse(isObject, smthElse), true);
     });
   });
@@ -33,7 +34,8 @@ describe(`Value checkers`, () => {
 
     it(`returns false if got smth else`, () => {
       // prettier-ignore
-      const smthElse = [null, 1, [], {}, '', () => {}, 1n, false, true, undefined];
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      const smthElse = [null, 1, [], {}, '', () => {}, false, true, undefined];
       equal(areAllValsFalse(isRegExp, smthElse), true);
     });
   });
@@ -44,10 +46,12 @@ describe(`Value checkers`, () => {
     });
 
     // prettier-ignore
-    it(`returns false if got smth else`, () => {  
-      const res1 = areStrings(null, 1, [], {}, /f/, () => {}, 1n, false, true, undefined);
+    it(`returns false if got smth else`, () => {
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      const res1 = areStrings(null, 1, [], {}, /f/, () => {}, false, true, undefined);
       equal(res1, false);
-      const res2 = areStrings([null, 1, [], {}, /f/, () => {}, 1n, false, true, undefined]);
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      const res2 = areStrings([null, 1, [], {}, /f/, () => {}, false, true, undefined]);
       equal(res2, false);
     });
   });
@@ -58,10 +62,12 @@ describe(`Value checkers`, () => {
     });
 
     // prettier-ignore
-    it(`returns false if got smth else`, () => {  
-      const res1 = areNumbers(null, 1, [], {}, /f/, () => {}, 1n, false, true, undefined);
+    it(`returns false if got smth else`, () => {
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      const res1 = areNumbers(null, 1, [], {}, /f/, () => {}, false, true, undefined);
       equal(res1, false);
-      const res2 = areNumbers([null, 1, [], {}, /f/, () => {}, 1n, false, true, undefined]);
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      const res2 = areNumbers([null, 1, [], {}, /f/, () => {}, false, true, undefined]);
       equal(res2, false);
     });
   });
@@ -73,32 +79,33 @@ describe(`Value checkers`, () => {
 
     it(`returns false if got smth else`, () => {
       // prettier-ignore
-      const smthElse = [null, 1, [], {}, '', () => {}, 1n, false, true, undefined];
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      const smthElse = [null, 1, [], {}, '', () => {}, false, true, undefined];
       equal(areAllValsFalse(isInfinity, smthElse), true);
     });
   });
 
   describe(`getType`, () => {
     it(`returns correct types for values, namely such types:
-        'object', 'array', 'number', 'Infinity', 'string', 'regexp', 'function', 'boolean', 'undefined`, () => {
+        'object', 'array', 'number', 'Infinity', 'string', 'regexp', 'function', 'boolean', 'undefined'`, () => {
       equal(getType({}), 'object');
       equal(getType([]), 'array');
       equal(getType(0), 'number');
       equal(getType(Infinity), 'Infinity');
       equal(getType('f'), 'string');
       equal(getType(/o/), 'regexp');
-      equal(
-        getType(() => {}),
-        'function'
-      );
+      // prettier-ignore
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      equal(getType(() => {}), 'function');
       equal(getType(false), 'boolean');
       equal(getType(undefined), 'undefined');
+      // @ts-expect-error: expected 1 argument
       equal(getType(), 'undefined');
     });
   });
 
   describe(`getPositiveIntegerOrZero`, () => {
-    it(`returns positive integer if got floating number above 0 (rounded by floor)`, () => {
+    it(`returns positive integer if got floating number above 0 (it'll be rounded by Math.floor)`, () => {
       equal(getPositiveIntegerOrZero(2.3), 2);
       equal(getPositiveIntegerOrZero(1.3), 1);
       equal(getPositiveIntegerOrZero(5.00001), 5);

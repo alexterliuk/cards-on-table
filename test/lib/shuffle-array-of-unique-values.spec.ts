@@ -1,15 +1,16 @@
 import { strictEqual as equal } from 'assert';
-import shuffleArrayOfUniqueValues from '../../../src/lib/shuffle-array-of-unique-values.js';
+import shuffleArrayOfUniqueValues from '../../src/lib/shuffle-array-of-unique-values';
 
 describe(`shuffleArrayOfUniqueValues`, () => {
   describe(`returns empty array`, () => {
-    it(`if got not array or empty array`, () => {
-      equal(shuffleArrayOfUniqueValues([]).length, 0);
+    it(`if got neither array, nor empty array`, () => {
+      // @ts-expect-error: expected 1 argument
       equal(shuffleArrayOfUniqueValues().length, 0);
+      equal(shuffleArrayOfUniqueValues([]).length, 0);
     });
   });
 
-  describe(`shuffles`, () => {
+  describe(`returns new shuffled array`, () => {
     it(`if got array with values`, () => {
       const arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
       const r1 = shuffleArrayOfUniqueValues(arr);
@@ -28,7 +29,7 @@ describe(`shuffleArrayOfUniqueValues`, () => {
           [r1, r2, r3, r4, r5].forEach(_res => {
             // do not compare same arrays
             if (res !== _res) {
-              // this block is entered 200 times
+              // this block is entered 200 times overall
               if (n === _res[i]) {
                 coincidencesOfValsByIndices.push(n);
               }

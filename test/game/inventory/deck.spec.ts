@@ -2,81 +2,93 @@ import { strictEqual as equal, throws, doesNotThrow } from 'assert';
 import {
   isArray,
   isFunction,
+  isObject,
   isNull,
-} from '../../../src/lib/utils/value-checkers.js';
-import getRandomElementFromArray from '../../../src/lib/utils/get-random-element-from-array.js';
-import Deck from '../../../src/game/inventory/deck.js';
-import {
-  defaultSuitNames as suitNames,
-  defaultSuitData as suitData,
-} from '../../../src/game/data/cards-data.js';
+} from '../../../src/lib/utils/value-checkers';
+import getRandomElementFromArray from '../../../src/lib/utils/get-random-element-from-array';
+import Card, { cardKeys, CardValues } from '../../../src/game/inventory/card';
+import { SuitValues } from '../../../src/game/inventory/suit';
+import Deck from '../../../src/game/inventory/deck';
+import deckCardsData from '../../../src/game/data/deck-cards-data';
 
 const isValidDeck = (
-  deck,
-  allCardsLength = 0,
+  deck: Deck,
   suitNamesLength = 0,
-  takenCardsLength = 0,
-  deckPropsQty = 8
+  allCardsLength = 0,
+  takenCardsLength = 0
 ) => {
   // prettier-ignore
   const result = [
-    ['allCards', isArray(deck.allCards) && deck.allCards.length === allCardsLength],
-    ['constructDeck', isFunction(deck.constructDeck)],
-    ['openedTrumpCard', isNull(deck.openedTrumpCard)],
-    ['resetState', isFunction(deck.resetState)],
-    ['shuffledLastTime', deck.shuffledLastTime === 0],
     ['suitNamesLength', isArray(deck.suitNames) && deck.suitNames.length === suitNamesLength],
-    ['takenCards', isArray(deck.takenCards) && deck.takenCards.length === takenCardsLength],
+    ['suitsKeysLength', Object.keys(deck.suits).length === suitNamesLength],
+    ['allCards', isArray(deck.allCards) && deck.allCards.length === allCardsLength],
     ['trumpSuitName', deck.trumpSuitName === ''],
-    ["deck's props quantity", Object.keys(deck).length === deckPropsQty],
+    ['openedTrumpCard', isNull(deck.openedTrumpCard)],
+    ['shuffledLastTime', deck.shuffledLastTime === 0],
+    ['takenCards', isArray(deck.takenCards) && deck.takenCards.length === takenCardsLength],
+    ['trumpSuitCardsData', isArray(deck.trumpSuitCardsData)],
+    // @ts-expect-error: constructDeck is protected and should not be accessed, ignore for testing
+    ['constructDeck', isFunction(deck.constructDeck)],
+    ['resetState', isFunction(deck.resetState)],
   ];
 
-  let name;
-  result.some(v => (v[1] ? false : ((name = v[0]), true)));
+  // @ts-expect-error: array.some implementation with reduce (complains due to unusual usage of reduce)
+  const name = result.reduce((acc: string, v: [string, boolean][]) => {
+    if (v[1]) return acc;
+    result.length = 0;
+    return v[0];
+  }, '');
 
   return name ? `[isValidDeck err]: ${name} is invalid` : true;
 };
 
-const isInstanceOf = (name, v) =>
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const isInstanceOf = (name: string, v: any) =>
   Object.getPrototypeOf(v).constructor.name === name;
-const isCard = c => isInstanceOf('Card', c);
-const isSuit = s => isInstanceOf('Suit', s);
+const isCard = (c: any) => isInstanceOf('Card', c);
+const isSuit = (s: any) => isInstanceOf('Suit', s);
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 describe(`Deck`, () => {
   describe(`new Deck()`, () => {
     it(`creates a template deck with empty data`, () => {
+      // @ts-expect-error: expected 1 argument
       const deck = new Deck();
       equal(isValidDeck(deck), true);
     });
   });
 
-  describe(`new Deck(['hearts'], [['seven', 0, 1]])`, () => {
+  describe(`new Deck(<data for one card>)`, () => {
     it(`creates a deck with only one suit comprising only one card`, () => {
-      const deck = new Deck(['hearts'], [['seven', 0, 1]]);
-      equal(isValidDeck(deck, 1, 1, 0, 9), true);
+      const deck = new Deck({
+        suitsData: [{ name: 'hearts', cardsData: [['king', 10, 1]] }],
+        trumpSuitCardsData: [['king', 100, 10]],
+      });
+      equal(isValidDeck(deck, 1, 1, 0), true);
       equal(deck.suitNames[0], 'hearts');
-      equal(deck.hasOwnProperty('hearts'), true);
-      equal(isSuit(deck.hearts), true);
+      equal(Object.prototype.hasOwnProperty.call(deck.suits, 'hearts'), true);
+      equal(isSuit(deck.suits.hearts), true);
       equal(isCard(deck.allCards[0]), true);
     });
   });
 
-  describe(`new Deck(<defaultSuitNames>, <defaultSuitData>)`, () => {
+  describe(`new Deck(deckCardsData)`, () => {
     // prettier-ignore
     it(`creates a deck with 4 suits and 52 cards overall`, () => {
-      const deck = new Deck(suitNames, suitData);
-      equal(isValidDeck(deck, 52, 4, 0, 12), true);
-      equal(suitNames.every(n => deck.suitNames.includes(n)), true);
-      equal(suitNames.every(n => deck.hasOwnProperty(n)), true);
-      equal(suitNames.every(n => isSuit(deck[n])), true);
+      const deck = new Deck(deckCardsData);
+      equal(isValidDeck(deck, 4, 52, 0), true);
+      const suitsData = deckCardsData.suitsData;
+      equal(suitsData.every(sd => deck.suitNames.includes(sd.name)), true);
+      equal(suitsData.every(sd => Object.prototype.hasOwnProperty.call(deck.suits, sd.name)), true);
+      equal(suitsData.every(sd => isSuit(deck.suits[sd.name])), true);
       equal(deck.allCards.every(c => isCard(c)), true);
     });
   });
 
   describe(`deck shuffles cards`, () => {
-    const deck = new Deck(suitNames, suitData);
+    const deck = new Deck(deckCardsData);
     const cardsInOrigOrder = [...deck.allCards];
-    const isShuffled = cardsBefore =>
+    const isShuffled = (cardsBefore: Card[]) =>
       cardsBefore.some((c, i) => c !== deck.allCards[i]);
 
     it(`shuffles one time`, () => {
@@ -93,8 +105,8 @@ describe(`Deck`, () => {
   });
 
   describe(`deck takes a card from all cards stack`, () => {
-    it(`takes first card`, () => {
-      const deck = new Deck(suitNames, suitData);
+    it(`[takeCardFromAllCards] takes first card`, () => {
+      const deck = new Deck(deckCardsData);
       const firstCardInAllCards = deck.allCards[0];
       const firstCardInTakenCards = deck.takenCards[0];
       const allCardsLength = deck.allCards.length;
@@ -108,9 +120,9 @@ describe(`Deck`, () => {
       equal(deck.takenCards.length === takenCardsLength + 1, true);
     });
 
-    it(`takes random card`, () => {
-      const deck = new Deck(suitNames, suitData);
-      // omit test in case if defaultSuitData in future will be small data
+    it(`[takeCardFromAllCards] takes random card`, () => {
+      const deck = new Deck(deckCardsData);
+      // omit test in case if deckCardsData in future will have data for just a few cards
       if (deck.allCards.length > 5) {
         const card1 = deck.allCards[0];
         const takenCard1 = deck.takeRandomCardFromAllCards();
@@ -130,13 +142,12 @@ describe(`Deck`, () => {
   });
 
   describe(`deck returns a card to all cards stack`, () => {
-    it(`does nothing and returns false if 1st arg is not card`, () => {
-      const deck = new Deck(suitNames, suitData);
+    it(`[returnCardToDeck] does nothing and returns false if 1st arg is not card`, () => {
+      const deck = new Deck(deckCardsData);
       const origAllCards = deck.allCards.map(c => c);
       equal(deck.takenCards.length, 0);
-
+      // @ts-expect-error: expected 1-2 arguments
       const result = deck.returnCardToDeck();
-
       equal(result, false);
       equal(
         origAllCards.every((c, i) => c === deck.allCards[i]),
@@ -145,24 +156,29 @@ describe(`Deck`, () => {
       equal(deck.takenCards.length, 0);
     });
 
-    it(`takes card back to all cards, closes card and returns true`, () => {
-      const deck = new Deck(suitNames, suitData);
+    it(`[returnCardToDeck] takes card back to all cards, closes card and returns true`, () => {
+      const deck = new Deck(deckCardsData);
       const allCardsLength = deck.allCards.length;
       const card = deck.takeCardFromAllCards();
       equal(allCardsLength !== deck.allCards.length, true);
-      card.open();
-      equal(card.opened, true);
+      equal(!!card, true);
 
-      const result = deck.returnCardToDeck(card);
+      // recheck card's existence for TS to get rid of 'card is possibly null' error
+      if (card) {
+        card.open();
+        equal(card.opened, true);
 
-      equal(allCardsLength === deck.allCards.length, true);
-      equal(card.opened, false);
-      equal(result, true);
+        const result = deck.returnCardToDeck(card);
+
+        equal(allCardsLength === deck.allCards.length, true);
+        equal(card.opened, false);
+        equal(result, true);
+      }
     });
 
-    it(`takes random card back to all cards, closes card and returns true`, () => {
-      const deck = new Deck(suitNames, suitData);
-      // omit test in case if defaultSuitData in future will be small data
+    it(`[returnRandomCardToDeck] takes random card back to all cards, closes card and returns true`, () => {
+      const deck = new Deck(deckCardsData);
+      // omit test in case if deckCardsData in future will have data for just a few cards
       if (deck.allCards.length > 5) {
         const allCardsLength = deck.allCards.length;
         const card1 = deck.takeCardFromAllCards();
@@ -173,11 +189,13 @@ describe(`Deck`, () => {
 
         equal(allCardsLength === deck.allCards.length + 5, true);
         equal(deck.takenCards.length === 5, true);
-        card1.open();
-        card2.open();
-        card3.open();
-        card4.open();
-        card5.open();
+        /* eslint-disable @typescript-eslint/no-non-null-assertion */
+        card1!.open();
+        card2!.open();
+        card3!.open();
+        card4!.open();
+        card5!.open();
+        /* eslint-enable @typescript-eslint/no-non-null-assertion */
 
         const isTakenNotFirst = () =>
           deck.takenCards[0] !== deck.allCards[deck.allCards.length - 1];
@@ -200,30 +218,36 @@ describe(`Deck`, () => {
   });
 
   describe(`deck returns all cards to all cards stack`, () => {
-    it(`throws if allCards or takenCards have smth which is not card`, () => {
-      let deck = new Deck(suitNames, suitData);
+    it(`[returnAllCardsToDeck] throws if allCards or takenCards have smth which is not card`, () => {
+      let deck = new Deck(deckCardsData);
+      /* eslint-disable @typescript-eslint/ban-ts-comment */
+      // @ts-expect-error
       deck.allCards.push({});
       throws(() => deck.returnAllCardsToDeck());
 
-      deck = new Deck(suitNames, suitData);
-      deck.takenCards.push(undefined);
+      deck = new Deck(deckCardsData);
+      // @ts-expect-error
+      deck.takenCards.push('');
       throws(() => deck.returnAllCardsToDeck());
 
-      deck = new Deck(suitNames, suitData);
+      deck = new Deck(deckCardsData);
       deck.takeCardFromAllCards();
+      // @ts-expect-error
       deck.allCards.push(0);
       throws(() => deck.returnAllCardsToDeck());
 
-      deck = new Deck(suitNames, suitData);
+      deck = new Deck(deckCardsData);
       deck.takeCardFromAllCards();
       deck.takeCardFromAllCards();
       deck.takeCardFromAllCards();
+      // @ts-expect-error
       deck.takenCards.push(true);
       throws(() => deck.returnAllCardsToDeck());
+      /* eslint-enable @typescript-eslint/ban-ts-comment */
     });
 
-    it(`makes trumpSuitName empty string`, () => {
-      const deck = new Deck(suitNames, suitData);
+    it(`[returnAllCardsToDeck] makes trumpSuitName empty string`, () => {
+      const deck = new Deck(deckCardsData);
       equal(deck.trumpSuitName, '');
       deck.trumpSuitName = 'f';
       equal(deck.trumpSuitName, 'f');
@@ -231,8 +255,8 @@ describe(`Deck`, () => {
       equal(deck.trumpSuitName, '');
     });
 
-    it(`returns all cards to all cards stack, closes each card`, () => {
-      const deck = new Deck(suitNames, suitData);
+    it(`[returnAllCardsToDeck] returns all cards to all cards stack, closes each card`, () => {
+      const deck = new Deck(deckCardsData);
       const allCardsLength = deck.allCards.length;
       [deck.allCards, deck.takenCards] = [deck.takenCards, deck.allCards];
       equal(deck.allCards.length, 0);
@@ -245,94 +269,126 @@ describe(`Deck`, () => {
       equal(res, true);
       equal(deck.allCards.length, allCardsLength);
       equal(deck.takenCards.length, 0);
-      equal(
-        deck.allCards.some(c => c.opened),
-        false
-      );
+      // prettier-ignore
+      equal(deck.allCards.some(c => c.opened), false);
     });
   });
 
-  describe(`deck makes trumpSuitName`, () => {
-    it(`doesn't assign trumpSuitName if suit is not Suit, returns false`, () => {
-      const deck = new Deck(suitNames, suitData);
+  describe(`deck assigns trumpSuitName`, () => {
+    it(`doesn't assign trumpSuitName if passed suitName is invalid, returns false`, () => {
+      const deck = new Deck(deckCardsData);
       equal(deck.trumpSuitName, '');
-      equal(deck.makeTrumpSuit(), false);
+      // @ts-expect-error: expected 1 argument
+      equal(deck.assignTrumpSuit(), false);
       equal(deck.trumpSuitName, '');
+      equal(deck.assignTrumpSuit('bla'), false);
     });
 
     it(`assigns trumpSuitName, returns true`, () => {
-      const deck = new Deck(suitNames, suitData);
-      equal(deck.makeTrumpSuit(deck[deck.suitNames[0]]), true);
+      const deck = new Deck(deckCardsData);
+      equal(deck.assignTrumpSuit(deck.suitNames[0]), true);
       equal(deck.trumpSuitName, deck.suitNames[0]);
     });
   });
 
-  describe(`deck resets trumpSuitName`, () => {
+  describe(`deck clears trumpSuitName`, () => {
     it(`to empty string`, () => {
-      const deck = new Deck(suitNames, suitData);
-      deck.makeTrumpSuit(deck[deck.suitNames[0]]);
-      deck.resetTrumpSuit();
+      const deck = new Deck(deckCardsData);
+      deck.assignTrumpSuit(deck.suitNames[0]);
+      deck.clearTrumpSuit();
       equal(deck.trumpSuitName, '');
+    });
+  });
+
+  describe(`deck makes trumpCardsValues from trumpSuitCardsData`, () => {
+    it(`makes if trumpSuitCardsData is not empty`, () => {
+      const deck = new Deck(deckCardsData);
+      const cardName = deck.trumpSuitCardsData[0][0];
+      const cardValue = deck.trumpSuitCardsData[0][1];
+      const cardRank = deck.trumpSuitCardsData[0][2];
+      equal(deck.trumpCardsValues[cardName].value, cardValue);
+      equal(deck.trumpCardsValues[cardName].rank, cardRank);
+    });
+
+    it(`doesn't make if trumpSuitCardsData is absent`, () => {
+      const _deckCardsData = { ...deckCardsData };
+      // @ts-expect-error: just for check if handles absent trumpSuitCardsData
+      _deckCardsData.trumpSuitCardsData = undefined;
+      const deck = new Deck(_deckCardsData);
+      equal(isArray(deck.trumpSuitCardsData), true);
+      equal(deck.trumpSuitCardsData.length, 0);
+      equal(isObject(deck.trumpCardsValues), true);
+      equal(Object.keys(deck.trumpCardsValues).length, 0);
     });
   });
 
   describe(`deck sets openedTrumpCard`, () => {
     it(`assigns openedTrumpCard and opens it`, () => {
-      const deck = new Deck(suitNames, suitData);
+      const deck = new Deck(deckCardsData);
       equal(deck.openedTrumpCard, null);
       deck.openTrumpCard();
       equal(isCard(deck.openedTrumpCard), true);
-      equal(deck.openedTrumpCard.opened, true);
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      equal(deck.openedTrumpCard!.opened, true);
     });
   });
 
   describe(`deck unsets openedTrumpCard`, () => {
-    const deck = new Deck(suitNames, suitData);
+    const deck = new Deck(deckCardsData);
 
     it(`[closeTrumpCard] does nothing if openedTrumpCard is not a card`, () => {
-      deck.openedTrumpCard = '';
-      equal(deck.openedTrumpCard, '');
+      equal(deck.openedTrumpCard, null);
       deck.closeTrumpCard();
-      equal(deck.openedTrumpCard, '');
+      equal(deck.openedTrumpCard, null);
     });
 
+    /* eslint-disable @typescript-eslint/no-non-null-assertion */
     it(`[closeTrumpCard] closes openedTrumpCard`, () => {
       deck.openTrumpCard();
       const card = deck.openedTrumpCard;
       equal(isCard(card), true);
-      equal(card.opened, true);
+      equal(card!.opened, true);
       deck.closeTrumpCard();
       equal(isCard(deck.openedTrumpCard), true);
-      equal(deck.openedTrumpCard.opened, false);
+      equal(deck.openedTrumpCard!.opened, false);
     });
 
     it(`[closeTrumpCardAndHide] closes openedTrumpCard and makes openedTrumpCard null`, () => {
       deck.openTrumpCard();
       const card = deck.openedTrumpCard;
       equal(isCard(card), true);
-      equal(card.opened, true);
+
+      equal(card!.opened, true);
       deck.closeTrumpCardAndHide();
       equal(deck.openedTrumpCard, null);
-      equal(card.opened, false);
+      equal(card!.opened, false);
     });
+    /* eslint-enable @typescript-eslint/no-non-null-assertion */
   });
 
   describe(`deck resets its state`, () => {
     it(`from arguments it was constructed with`, () => {
-      const deck = new Deck(suitNames, suitData);
+      const deck = new Deck(deckCardsData);
 
       const _suitNames = [...deck.suitNames];
+      // TODO const _trumpSuitNameBefore = deck.trumpSuitName;
+      // TODO const _trumpSuitNameAfter = deck.trumpSuitName;
       const _openedTrumpCard = deck.openedTrumpCard;
       const _shuffledLastTime = deck.shuffledLastTime;
       const _takenCardsLength = deck.takenCards.length;
-      const _trumpSuitName = deck.trumpSuitName;
+      // TODO: const _trumpSuitCardsData = deck.trumpSuitCardsData...;
+
+      // @ts-expect-error: constructDeck is protected and should not be accessed, ignore for testing
       const _constructDeck = deck.constructDeck;
       const _resetState = deck.resetState;
 
-      const copyCardsState = cards =>
-        cards.map(c => Object.keys(c).map(k => c[k]));
-      const copySuitsState = (suitNames, deck) =>
-        suitNames.map(n => [n, copyCardsState(deck[n].cards)]);
+      const copyCardsState = (cards: Card[]) =>
+        cards.map(c => cardKeys.map(k => c[k]));
+      const copySuitsState = (suitNames: string[], deck: Deck) =>
+        suitNames.map(n => ({
+          name: n,
+          cardsState: copyCardsState(deck.suits[n].cards),
+        }));
 
       const _allCardsState = copyCardsState(deck.allCards);
       const _suitsState = copySuitsState(_suitNames, deck);
@@ -341,10 +397,10 @@ describe(`Deck`, () => {
       deck.takeRandomCardFromAllCards();
       deck.takeRandomCardFromAllCards();
       deck.takeRandomCardFromAllCards();
-      deck.makeTrumpSuit(deck.suitNames[0]);
+      // deck.makeTrumpSuit(deck.suitNames[0]);
       deck.openTrumpCard();
       deck.shuffleManyTimes();
-      deck.makeTrumpSuit(deck[deck.openedTrumpCard.suit]);
+      // deck.makeTrumpSuit(deck[deck.openedTrumpCard.suit]);
 
       deck.resetState();
 
@@ -353,42 +409,51 @@ describe(`Deck`, () => {
       equal(deck.openedTrumpCard, _openedTrumpCard);
       equal(deck.shuffledLastTime, _shuffledLastTime);
       equal(deck.takenCards.length, _takenCardsLength);
-      equal(deck.trumpSuitName, _trumpSuitName);
+      // equal(deck.trumpSuitName, _trumpSuitName);
+      // @ts-expect-error: constructDeck is protected and should not be accessed, ignore for testing
       equal(deck.constructDeck, _constructDeck);
       equal(deck.resetState, _resetState);
 
       const allCardsState = copyCardsState(deck.allCards);
-      const areAllCardsStatesEqual = (prev, curr) =>
+      const areAllCardsStatesEqual = (prev: CardValues[], curr: CardValues[]) =>
         prev.every((cardData, i) =>
           cardData.every((val, y) => val === curr[i][y])
         );
 
       const suitsState = copySuitsState(deck.suitNames, deck);
-      const areSuitsStatesEqual = (prev, curr) =>
-        prev.every(
-          (suitData, i) =>
-            suitData[0] /*name*/ === curr[i][0] &&
-            areAllCardsStatesEqual(suitData[1], curr[i][1])
-        );
+      const areSuitsStatesEqual = (prev: SuitValues[], curr: SuitValues[]) =>
+        prev.every((suitData, i) => {
+          if (suitData.name === curr[i].name) {
+            return areAllCardsStatesEqual(
+              suitData.cardsState,
+              curr[i].cardsState
+            );
+          }
+        });
 
       equal(areAllCardsStatesEqual(_allCardsState, allCardsState), true);
       equal(areSuitsStatesEqual(_suitsState, suitsState), true);
+      // equal(areTrumpSuitsEqual...)
     });
   });
 
   describe(`deck deals cards`, () => {
-    const deck = new Deck(suitNames, suitData);
+    const deck = new Deck(deckCardsData);
 
     it(`throws if playersQty || cardsQtyToPlayer is not string`, () => {
       const message = `playersQty, cardsQtyToPlayer aren't numbers or one/both of them is 0.`;
+      // @ts-expect-error: expected 2-4 arguments
       throws(() => deck.deal(), { message });
+      // @ts-expect-error: expected 2-4 arguments
       throws(() => deck.deal(''), { message });
+      // @ts-expect-error: expected 2-4 arguments
       throws(() => deck.deal(null, true), { message });
     });
 
     it(`throws if buyInCardsQty is present as param but is not number`, () => {
       const message = 'buyInCardsQty must be number or undefined.';
       doesNotThrow(() => deck.deal(2, 4));
+      // @ts-expect-error: buyInCardsQty is invalid
       throws(() => deck.deal(2, 4, true), { message });
     });
 
