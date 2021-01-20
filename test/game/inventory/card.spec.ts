@@ -1,5 +1,5 @@
 import { strictEqual as equal, throws } from 'assert';
-import Card from '../../../src/game/inventory/card.js';
+import Card from '../../../src/game/inventory/card';
 
 describe(`Card`, () => {
   describe(`new Card('ace', 11, 'spades', 8)`, () => {
@@ -16,9 +16,13 @@ describe(`Card`, () => {
 
   describe(`new Card is not created with invalid params`, () => {
     it(`it throws`, () => {
+      // @ts-expect-error: expected 4 arguments
       throws(() => new Card());
+      // @ts-expect-error: expected 4 arguments
       throws(() => new Card(14));
+      // @ts-expect-error: expected 4 arguments
       throws(() => new Card('ace', 'f'));
+      // @ts-expect-error: expected 4 valid arguments
       throws(() => new Card('ace', 11, 'spades', false));
     });
   });

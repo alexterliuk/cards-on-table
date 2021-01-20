@@ -1,13 +1,13 @@
-import { areStrings, areNumbers } from '../../lib/utils/value-checkers.js';
+import { areStrings, areNumbers } from '../../lib/utils/value-checkers';
 
 export default class Card {
-  /**
-   * @param {string} name
-   * @param {number} value
-   * @param {string} suit
-   * @param {number} rank
-   */
-  constructor(name, value, suit, rank) {
+  name: string;
+  value: number;
+  suit: string;
+  rank: number;
+  opened: boolean;
+
+  constructor(name: string, value: number, suit: string, rank: number) {
     if (!areStrings(name, suit) || !areNumbers(value, rank)) {
       throw new Error(
         'Invalid param passed when creating new card: name, suit must be strings; value, rank must be numbers.'
@@ -29,3 +29,16 @@ export default class Card {
     this.opened = false;
   }
 }
+
+export const cardKeys: (keyof Card)[] = [
+  'name',
+  'value',
+  'suit',
+  'rank',
+  'opened',
+  'open',
+  'close',
+];
+
+// values of one card
+export type CardValues = (string | number | boolean | (() => void))[];
