@@ -1,7 +1,7 @@
-import { isArray } from './utils/value-checkers.js'
-import getRandomElementFromArray from './utils/get-random-element-from-array.js';
+import { isArray } from './utils/value-checkers';
+import getRandomElementFromArray from './utils/get-random-element-from-array';
 
-const shuffleArrayOfUniqueValues = arr => {
+const shuffleArrayOfUniqueValues = (arr: any[]): any[] => {
   if (!isArray(arr)) return [];
   const shuffled = [];
 
