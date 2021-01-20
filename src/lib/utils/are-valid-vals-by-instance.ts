@@ -1,4 +1,3 @@
-import Card from '../../game/inventory/card';
 import { isArray, isFunction } from './value-checkers';
 
 /**
@@ -7,7 +6,8 @@ import { isArray, isFunction } from './value-checkers';
  * @param [allowEmptyArr] - whether return 'true' if arr is empty
  */
 const areValidValsByInstance = (
-  arr: {}[],
+  arr: unknown[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   klass: any,
   allowEmptyArr?: boolean
 ): undefined | boolean => {

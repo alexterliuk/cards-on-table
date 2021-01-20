@@ -8,9 +8,9 @@ import { areNumbers } from './value-checkers';
 function getRandomNumberInRange(num1: number, num2: number) {
   if (!areNumbers(num1, num2)) return 0;
 
-  let min = Math.min(num1, num2),
+  const min = Math.min(num1, num2),
     max = min === num1 ? num2 : num1;
-  let range = max - min;
+  const range = max - min;
 
   return min + Math.random() * range;
 }

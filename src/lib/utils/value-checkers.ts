@@ -2,6 +2,8 @@
  * Collection of helper functions to check values.
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export const isNull = (v: any) => v === null;
 
 export const isArray = (v: any) => Array.isArray(v);
