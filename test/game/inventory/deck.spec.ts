@@ -2,6 +2,7 @@ import { strictEqual as equal, throws, doesNotThrow } from 'assert';
 import {
   isArray,
   isFunction,
+  isObject,
   isNull,
 } from '../../../src/lib/utils/value-checkers';
 import getRandomElementFromArray from '../../../src/lib/utils/get-random-element-from-array';
@@ -273,30 +274,53 @@ describe(`Deck`, () => {
     });
   });
 
-  // TODO: makeTrumpSuit(trumpSuitData)
-  // describe(`deck makes trumpSuitName`, () => {
-  //   it(`doesn't assign trumpSuitName if suit is not Suit, returns false`, () => {
-  //     const deck = new Deck(deckCardsData);
-  //     equal(deck.trumpSuitName, '');
-  //     equal(deck.makeTrumpSuit(), false);
-  //     equal(deck.trumpSuitName, '');
-  //   });
+  describe(`deck assigns trumpSuitName`, () => {
+    it(`doesn't assign trumpSuitName if passed suitName is invalid, returns false`, () => {
+      const deck = new Deck(deckCardsData);
+      equal(deck.trumpSuitName, '');
+      // @ts-expect-error: expected 1 argument
+      equal(deck.assignTrumpSuit(), false);
+      equal(deck.trumpSuitName, '');
+      equal(deck.assignTrumpSuit('bla'), false);
+    });
 
-  //   it(`assigns trumpSuitName, returns true`, () => {
-  //     const deck = new Deck(suitNames, suitData);
-  //     equal(deck.makeTrumpSuit(deck[deck.suitNames[0]]), true);
-  //     equal(deck.trumpSuitName, deck.suitNames[0]);
-  //   });
-  // });
+    it(`assigns trumpSuitName, returns true`, () => {
+      const deck = new Deck(deckCardsData);
+      equal(deck.assignTrumpSuit(deck.suitNames[0]), true);
+      equal(deck.trumpSuitName, deck.suitNames[0]);
+    });
+  });
 
-  // describe(`deck resets trumpSuitName`, () => {
-  //   it(`to empty string`, () => {
-  //     const deck = new Deck(suitNames, suitData);
-  //     deck.makeTrumpSuit(deck[deck.suitNames[0]]);
-  //     deck.resetTrumpSuit();
-  //     equal(deck.trumpSuitName, '');
-  //   });
-  // });
+  describe(`deck clears trumpSuitName`, () => {
+    it(`to empty string`, () => {
+      const deck = new Deck(deckCardsData);
+      deck.assignTrumpSuit(deck.suitNames[0]);
+      deck.clearTrumpSuit();
+      equal(deck.trumpSuitName, '');
+    });
+  });
+
+  describe(`deck makes trumpCardsValues from trumpSuitCardsData`, () => {
+    it(`makes if trumpSuitCardsData is not empty`, () => {
+      const deck = new Deck(deckCardsData);
+      const cardName = deck.trumpSuitCardsData[0][0];
+      const cardValue = deck.trumpSuitCardsData[0][1];
+      const cardRank = deck.trumpSuitCardsData[0][2];
+      equal(deck.trumpCardsValues[cardName].value, cardValue);
+      equal(deck.trumpCardsValues[cardName].rank, cardRank);
+    });
+
+    it(`doesn't make if trumpSuitCardsData is absent`, () => {
+      const _deckCardsData = { ...deckCardsData };
+      // @ts-expect-error: just for check if handles absent trumpSuitCardsData
+      _deckCardsData.trumpSuitCardsData = undefined;
+      const deck = new Deck(_deckCardsData);
+      equal(isArray(deck.trumpSuitCardsData), true);
+      equal(deck.trumpSuitCardsData.length, 0);
+      equal(isObject(deck.trumpCardsValues), true);
+      equal(Object.keys(deck.trumpCardsValues).length, 0);
+    });
+  });
 
   describe(`deck sets openedTrumpCard`, () => {
     it(`assigns openedTrumpCard and opens it`, () => {

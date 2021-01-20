@@ -17,11 +17,13 @@ class DeckConstructor {
   suitNames: string[] = [];
   suits: Suits = {};
   allCards: Card[] = [];
-  trumpSuitName = '';
   openedTrumpCard: Card | null = null;
   shuffledLastTime = 0;
   takenCards: Card[] = [];
+  trumpSuitName = '';
   trumpSuitCardsData: SuitCardsData = [];
+  trumpCardsValues: { [x: string]: { value: number; rank: number } } = {};
+
   protected constructDeck: (deckCardsData: DeckCardsData) => void;
   protected constructor() {
     this.constructDeck = deckCardsData => {
@@ -37,11 +39,21 @@ class DeckConstructor {
             [[], {}, []]
           );
 
-      this.trumpSuitName = '';
       this.openedTrumpCard = null;
       this.shuffledLastTime = 0;
       this.takenCards = [];
-      //this.trumpSuitCardsData = [];
+      this.trumpSuitName = '';
+      this.trumpSuitCardsData = deckCardsData?.trumpSuitCardsData || [];
+      this.trumpCardsValues = this.trumpSuitCardsData.reduce(
+        (acc: { [x: string]: { value: number; rank: number } }, cardData) => {
+          acc[cardData[0]] = {
+            value: cardData[1],
+            rank: cardData[2],
+          };
+          return acc;
+        },
+        {}
+      );
     };
   }
 }
@@ -59,7 +71,7 @@ export default class Deck extends DeckConstructor {
           cardsData: sd.cardsData.map(cd => [...cd]),
         })),
         trumpSuitCardsData:
-          deckCardsData?.trumpSuitCardsData.map(cd => [...cd]) || [],
+          deckCardsData?.trumpSuitCardsData?.map(cd => [...cd]) || [],
       };
       // TODO: make possible making id for each card
       return () => {
@@ -171,13 +183,13 @@ export default class Deck extends DeckConstructor {
     return !this.takenCards.length && !!this.allCards.length;
   }
 
-  makeTrumpSuit(suit: Suit) {
-    if (!(suit instanceof Suit)) return false;
-    this.trumpSuitName = suit.name;
+  assignTrumpSuit(suitName: string) {
+    if (!this.suitNames.includes(suitName)) return false;
+    this.trumpSuitName = suitName;
     return true;
   }
 
-  resetTrumpSuit() {
+  clearTrumpSuit() {
     this.trumpSuitName = '';
   }
 
