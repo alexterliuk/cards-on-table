@@ -1,5 +1,5 @@
 import { strictEqual as equal, throws } from 'assert';
-import Card from '../../../src/game/inventory/card';
+import Card from '../../src/inventory/card';
 
 describe(`Card`, () => {
   describe(`new Card('ace', 11, 'spades', 8)`, () => {

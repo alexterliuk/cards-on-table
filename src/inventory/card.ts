@@ -1,4 +1,4 @@
-import { areStrings, areNumbers } from '../../lib/utils/value-checkers';
+import { areStrings, areNumbers } from '../lib/utils/value-checkers';
 
 export default class Card {
   name: string;

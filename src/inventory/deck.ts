@@ -1,13 +1,13 @@
 import Card from './card';
 import Suit from './suit';
 import { DeckCardsData, SuitCardsData } from '../data/deck-cards-data';
-import shuffleArrayOfUniqueValues from '../../lib/shuffle-array-of-unique-values';
+import shuffleArrayOfUniqueValues from '../lib/shuffle-array-of-unique-values';
 import {
   isNumber,
   getPositiveIntegerOrZero,
-} from '../../lib/utils/value-checkers';
-import getRandomFloor from '../../lib/utils/get-random-floor';
-import areValidValsByInstance from '../../lib/utils/are-valid-vals-by-instance';
+} from '../lib/utils/value-checkers';
+import getRandomFloor from '../lib/utils/get-random-floor';
+import areValidValsByInstance from '../lib/utils/are-valid-vals-by-instance';
 
 interface Suits {
   [x: string]: { name: string; cards: Card[] };

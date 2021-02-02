@@ -1,5 +1,5 @@
 import { strictEqual as equal } from 'assert';
-import Card from '../../../src/game/inventory/card';
+import Card from '../../../src/inventory/card';
 import areValidValsByInstance from '../../../src/lib/utils/are-valid-vals-by-instance';
 
 describe(`areValidValsByInstance`, () => {
