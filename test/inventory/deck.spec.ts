@@ -4,12 +4,12 @@ import {
   isFunction,
   isObject,
   isNull,
-} from '../../../src/lib/utils/value-checkers';
-import getRandomElementFromArray from '../../../src/lib/utils/get-random-element-from-array';
-import Card, { cardKeys, CardValues } from '../../../src/game/inventory/card';
-import { SuitValues } from '../../../src/game/inventory/suit';
-import Deck from '../../../src/game/inventory/deck';
-import deckCardsData from '../../../src/game/data/deck-cards-data';
+} from '../../src/lib/utils/value-checkers';
+import getRandomElementFromArray from '../../src/lib/utils/get-random-element-from-array';
+import Card, { cardKeys, CardValues } from '../../src/inventory/card';
+import { SuitValues } from '../../src/inventory/suit';
+import Deck from '../../src/inventory/deck';
+import deckCardsData from '../../src/data/deck-cards-data';
 
 const isValidDeck = (
   deck: Deck,

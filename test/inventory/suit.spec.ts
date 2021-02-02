@@ -1,6 +1,6 @@
 import { strictEqual as equal, throws } from 'assert';
-import Suit from '../../../src/game/inventory/suit';
-import { SuitData } from '../../../src/game/data/deck-cards-data';
+import Suit from '../../src/inventory/suit';
+import { SuitData } from '../../src/data/deck-cards-data';
 
 describe(`Suit`, () => {
   describe(`new Suit is created with valid data`, () => {

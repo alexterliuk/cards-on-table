@@ -1,6 +1,6 @@
 import Card, { CardValues } from './card';
 import { SuitData } from '../data/deck-cards-data';
-import { isString } from '../../lib/utils/value-checkers';
+import { isString } from '../lib/utils/value-checkers';
 
 export default class Suit {
   name: string;
