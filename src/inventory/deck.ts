@@ -142,7 +142,7 @@ export default class Deck extends DeckConstructor {
         this.takenCards.splice(idxInTakenCards as number, 1)[0]) ||
       this.takenCards.find((c, i) => {
         if (c === card) {
-          return this.takenCards.splice(i, 1);
+          return this.takenCards.splice(i, 1)[0];
         }
       });
 
