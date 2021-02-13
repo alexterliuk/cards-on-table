@@ -83,6 +83,10 @@ export default class Deck extends DeckConstructor {
     })();
   }
 
+  get length() {
+    return this.allCards.length + this.takenCards.length;
+  }
+
   shuffle(): Card[] {
     this.allCards = shuffleArrayOfUniqueValues(this.allCards);
     this.shuffledLastTime = 1;
@@ -125,7 +129,7 @@ export default class Deck extends DeckConstructor {
    * @param [idxInTakenCards] - idx where the card is located in takenCards
    * @returns boolean - success or not
    */
-  returnCardToDeck(card: Card, idxInTakenCards?: number): boolean {
+  returnCardToDeck(card: Card | null, idxInTakenCards?: number): boolean {
     if (!(card instanceof Card)) return false;
 
     const foundCard =
