@@ -348,8 +348,12 @@ describe(`Deck`, () => {
     it(`assigns openedTrumpCard and opens it`, () => {
       const deck = new Deck(deckCardsData);
       equal(deck.openedTrumpCard, null);
+      equal(deck.takenCards.length, 0);
       deck.openTrumpCard();
       equal(isCard(deck.openedTrumpCard), true);
+      // @ts-expect-error: omit that deck.openedTrumpCard may be null
+      equal(deck.allCards.includes(deck.openedTrumpCard), false);
+      equal(deck.takenCards.length, 1);
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       equal(deck.openedTrumpCard!.opened, true);
     });
