@@ -127,9 +127,14 @@ export default class Deck extends DeckConstructor {
   /**
    * @param card
    * @param [idxInTakenCards] - idx where the card is located in takenCards
+   * @param [toStart] - unshift allCards with card (by default card is pushed)
    * @returns boolean - success or not
    */
-  returnCardToDeck(card: Card | null, idxInTakenCards?: number): boolean {
+  returnCardToDeck(
+    card: Card | null,
+    idxInTakenCards?: number | null,
+    toStart?: 'toStart'
+  ): boolean {
     if (!(card instanceof Card)) return false;
 
     const foundCard =
@@ -143,7 +148,8 @@ export default class Deck extends DeckConstructor {
 
     if (foundCard) {
       foundCard.close();
-      this.allCards.push(foundCard);
+      const method = toStart === 'toStart' ? 'unshift' : 'push';
+      this.allCards[method](foundCard);
 
       if (foundCard === this.openedTrumpCard) {
         this.closeTrumpCardAndHide();
