@@ -156,7 +156,7 @@ describe(`Deck`, () => {
       equal(deck.takenCards.length, 0);
     });
 
-    it(`[returnCardToDeck] takes card back to all cards, closes card and returns true`, () => {
+    it(`[returnCardToDeck] takes card back to all cards (to end), closes card and returns true`, () => {
       const deck = new Deck(deckCardsData);
       const allCardsLength = deck.allCards.length;
       const card = deck.takeCardFromAllCards();
@@ -171,6 +171,28 @@ describe(`Deck`, () => {
         const result = deck.returnCardToDeck(card);
 
         equal(allCardsLength === deck.allCards.length, true);
+        equal(deck.allCards[deck.allCards.length - 1], card); // card added to end
+        equal(card.opened, false);
+        equal(result, true);
+      }
+    });
+
+    it(`[returnCardToDeck] takes card back to all cards (to start), closes card and returns true`, () => {
+      const deck = new Deck(deckCardsData);
+      const allCardsLength = deck.allCards.length;
+      const card = deck.takeCardFromAllCards();
+      equal(allCardsLength !== deck.allCards.length, true);
+      equal(!!card, true);
+
+      // recheck card's existence for TS to get rid of 'card is possibly null' error
+      if (card) {
+        card.open();
+        equal(card.opened, true);
+
+        const result = deck.returnCardToDeck(card, null, 'toStart');
+
+        equal(allCardsLength === deck.allCards.length, true);
+        equal(deck.allCards[0], card); // card added to start
         equal(card.opened, false);
         equal(result, true);
       }
@@ -326,8 +348,12 @@ describe(`Deck`, () => {
     it(`assigns openedTrumpCard and opens it`, () => {
       const deck = new Deck(deckCardsData);
       equal(deck.openedTrumpCard, null);
+      equal(deck.takenCards.length, 0);
       deck.openTrumpCard();
       equal(isCard(deck.openedTrumpCard), true);
+      // @ts-expect-error: omit that deck.openedTrumpCard may be null
+      equal(deck.allCards.includes(deck.openedTrumpCard), false);
+      equal(deck.takenCards.length, 1);
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       equal(deck.openedTrumpCard!.opened, true);
     });

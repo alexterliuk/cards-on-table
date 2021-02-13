@@ -83,6 +83,10 @@ export default class Deck extends DeckConstructor {
     })();
   }
 
+  get length() {
+    return this.allCards.length + this.takenCards.length;
+  }
+
   shuffle(): Card[] {
     this.allCards = shuffleArrayOfUniqueValues(this.allCards);
     this.shuffledLastTime = 1;
@@ -123,9 +127,14 @@ export default class Deck extends DeckConstructor {
   /**
    * @param card
    * @param [idxInTakenCards] - idx where the card is located in takenCards
+   * @param [toStart] - unshift allCards with card (by default card is pushed)
    * @returns boolean - success or not
    */
-  returnCardToDeck(card: Card, idxInTakenCards?: number): boolean {
+  returnCardToDeck(
+    card: Card | null,
+    idxInTakenCards?: number | null,
+    toStart?: 'toStart'
+  ): boolean {
     if (!(card instanceof Card)) return false;
 
     const foundCard =
@@ -133,13 +142,14 @@ export default class Deck extends DeckConstructor {
         this.takenCards.splice(idxInTakenCards as number, 1)[0]) ||
       this.takenCards.find((c, i) => {
         if (c === card) {
-          return this.takenCards.splice(i, 1);
+          return this.takenCards.splice(i, 1)[0];
         }
       });
 
     if (foundCard) {
       foundCard.close();
-      this.allCards.push(foundCard);
+      const method = toStart === 'toStart' ? 'unshift' : 'push';
+      this.allCards[method](foundCard);
 
       if (foundCard === this.openedTrumpCard) {
         this.closeTrumpCardAndHide();
