@@ -22,6 +22,9 @@ export default class Player {
     this.bonuses = [];
   }
 
+  // ================== interacting with ownCards ==================
+  // these methods are called rather by other methods than directly
+
   addCardToOwnCards(card: Card | null, idx?: number): boolean {
     if (card instanceof Card) {
       if (!this.ownCards.includes(card)) {
@@ -69,7 +72,7 @@ export default class Player {
     return true;
   }
 
-  returnOwnCardBackToOwnCards(card: Card, cardIdx: number) {
+  returnOwnCardBackToOwnCards(card: Card, cardIdx?: number) {
     const returnedToOwnCards = this.addCardToOwnCards(card, cardIdx);
     if (!returnedToOwnCards) {
       throw new Error(
