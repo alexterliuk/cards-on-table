@@ -21,6 +21,8 @@ export default class Table {
       throw new Error('Each player must be Player when creating new Table.');
     }
 
+    players.forEach(p => p.connectToTable(this));
+
     this.deck = deck;
     this.playersCorners = players.map(p => ({
       player: p,

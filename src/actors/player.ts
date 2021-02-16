@@ -7,24 +7,35 @@ import areAllValsInTarget from '../lib/utils/are-all-vals-in-target';
 
 export default class Player {
   deck: Deck;
-  table: Table;
+  table: Table | null;
   ownCards: Card[];
   combinations: Card[][];
   fines: { name: string; value: number }[];
   bonuses: { name: string; value: number }[];
 
-  constructor(deck: Deck, table: Table) {
+  constructor(deck: Deck) {
     if (!(deck instanceof Deck)) {
       throw new Error(
         'deck must be instance of Deck when creating new Player.'
       );
     }
     this.deck = deck;
-    this.table = table;
+    this.table = null;
     this.ownCards = [];
     this.combinations = [];
     this.fines = [];
     this.bonuses = [];
+  }
+
+  // when new table is instantiated
+  // it invokes this method of each got player
+  connectToTable(table: Table) {
+    this.table = table;
+    return true;
+  }
+
+  isConnectedToTable() {
+    return this.table instanceof Table;
   }
 
   // ========== interacting with ownCards || combinations ==========
@@ -98,6 +109,7 @@ export default class Player {
 
   // this method calls table's method
   addCombinationToBulkOfPlayerFromCombinations(combination: Card[]) {
+    if (!this.table) return false;
     const idx = findIndexOfMatchedArray(this.combinations, combination);
     if (idx === -1) return false;
     const added = this.table.addCombinationToBulkOfPlayer(combination, this);
@@ -106,6 +118,7 @@ export default class Player {
 
   // this method calls table's method
   addCombinationToCombinationsFromBulkOfPlayer(combination: Card[]) {
+    if (!this.table) return null;
     const takeBack = this.table.takeCombinationFromBulkOfPlayer;
     return !!takeBack(combination, this, 'combinations');
   }
