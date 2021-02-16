@@ -1,6 +1,7 @@
 import Deck from '../inventory/deck';
 import Card from '../inventory/card';
 import Player from '../actors/player';
+import findIndexOfMatchedArray from '../lib/find-index-of-matched-array';
 
 export default class Table {
   deck: Deck;
@@ -87,6 +88,7 @@ export default class Table {
     return this.addCardOrCombinationToBulkOfPlayer(combination, player);
   }
 
+  // this method calls player's method
   takeCardFromBulkOfPlayer(
     card: Card,
     player: Player | null,
@@ -111,6 +113,7 @@ export default class Table {
     return null;
   }
 
+  // this method calls player's method
   takeCombinationFromBulkOfPlayer(
     combination: Card[],
     player: Player | null,
@@ -119,22 +122,14 @@ export default class Table {
     const bulkOfPlayer = this.getBulkOfPlayer(player);
     if (bulkOfPlayer) {
       const cards = bulkOfPlayer.cards;
-      let idx = -1;
-      cards.some((cardOrComb, i) => {
-        const comb = Array.isArray(cardOrComb) && cardOrComb;
-        if (comb && comb.length === combination.length) {
-          const found = comb.every(c => combination.includes(c));
-          return found ? ((idx = i), true) : false;
-        }
-        return false;
-      });
-
+      const idx = findIndexOfMatchedArray(cards, combination);
       if (idx > -1) {
         if (bulkOfPlayer.player === null || destination === 'discardPile') {
           const added = this.addCombinationToDiscardPile(combination);
           return added ? (cards.splice(idx, 1)[0] as Card[]) : null;
         }
         if (destination === 'combinations') {
+          // prettier-ignore
           const added = player?.addCombinationToCombinations(combination);
           return added ? (cards.splice(idx, 1)[0] as Card[]) : null;
         }
