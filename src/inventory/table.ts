@@ -115,12 +115,14 @@ export default class Table {
     return null;
   }
 
-  // this method calls player's method
-  takeCombinationFromBulkOfPlayer(
+  // this method calls player's method,
+  // it is also called within a player,
+  // so define this function as arrow to avoid 'wrong this' problem
+  takeCombinationFromBulkOfPlayer = (
     combination: Card[],
     player: Player | null,
     destination?: 'combinations' | 'discardPile'
-  ): Card[] | null {
+  ): Card[] | null => {
     const bulkOfPlayer = this.getBulkOfPlayer(player);
     if (bulkOfPlayer) {
       const cards = bulkOfPlayer.cards;
@@ -138,7 +140,7 @@ export default class Table {
       }
     }
     return null;
-  }
+  };
 
   revokeAllCardsFromBulkOfPlayer(
     player: Player | null,
