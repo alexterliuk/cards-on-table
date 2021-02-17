@@ -194,6 +194,46 @@ describe(`Player`, () => {
       equal(player.combinations.length, 1);
       equal(bulkOfPlayer.cards[0], undefined);
     });
+
+    it(`[addCombinationToCombinationsFromBulkOfPlayer] adds combination and returns true`, () => {
+      const { deck, player } = getDnP();
+      const table = new Table(deck, [player]);
+      const bulkOfPlayer = table.playersBulks.find(b => b.player === player);
+      equal(bulkOfPlayer?.player, player);
+      const comb = deck.allCards.slice(0, 3);
+      bulkOfPlayer.cards.push(comb);
+      equal(player.combinations.length, 0);
+      equal(Array.isArray(bulkOfPlayer.cards[0]), true);
+      const added = player.addCombinationToCombinationsFromBulkOfPlayer(comb);
+      equal(added, true);
+      equal(player.combinations.length, 1);
+      equal(bulkOfPlayer.cards[0], undefined);
+    });
+
+    it(`[returnCombinationToOwnCards] returns combination to own cards and returns true`, () => {
+      const { deck, player } = getDnP();
+      const comb = deck.allCards.slice(0, 3);
+      player.combinations.push(comb);
+      equal(player.combinations.length, 1);
+      equal(player.ownCards.length, 0);
+      const returned = player.returnCombinationToOwnCards(comb);
+      equal(returned, true);
+      equal(player.combinations.length, 0);
+      equal(player.ownCards.length, 3);
+    });
+
+    it(`[returnCombinationToOwnCards] does not return combination to own cards if a card from it already in own cards, returns false`, () => {
+      const { deck, player } = getDnP();
+      const comb = deck.allCards.slice(0, 3);
+      player.combinations.push(comb);
+      player.ownCards.push(comb[1]);
+      equal(player.combinations.length, 1);
+      equal(player.ownCards.length, 1);
+      const returned = player.returnCombinationToOwnCards(comb);
+      equal(returned, false);
+      equal(player.combinations.length, 1);
+      equal(player.ownCards.length, 1);
+    });
   });
 
   describe(`new Player(deck), methods which interact with deck`, () => {
