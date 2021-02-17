@@ -2,6 +2,7 @@ import { strictEqual as equal, throws } from 'assert';
 import deckCardsData from '../../src/data/deck-cards-data';
 import Deck from '../../src/inventory/deck';
 import Card from '../../src/inventory/card';
+import Table from '../../src/inventory/table';
 import Player from '../../src/actors/player';
 
 const getDnP = () => {
@@ -20,7 +21,7 @@ describe(`Player`, () => {
     });
   });
 
-  describe(`new Player(deck), base methods which interact with own cards`, () => {
+  describe(`new Player(deck), base methods which interact with own cards and combinations`, () => {
     it(`creates a player`, () => {
       const { deck, player } = getDnP();
       equal(player instanceof Player, true);
@@ -29,6 +30,13 @@ describe(`Player`, () => {
       equal(player.combinations.length, 0);
       equal(player.fines.length, 0);
       equal(player.bonuses.length, 0);
+    });
+
+    it(`connects to table`, () => {
+      const { deck, player } = getDnP();
+      equal(player.isConnectedToTable(), false);
+      new Table(deck, [player]);
+      equal(player.isConnectedToTable(), true);
     });
 
     it(`[addCardToOwnCards] adds card to own cards`, () => {
@@ -99,6 +107,92 @@ describe(`Player`, () => {
         idx3 !== idx4 - 1 && idx3 !== idx4 + 1,
       ];
       equal(res.includes(true), true);
+    });
+
+    it(`[addCombinationToCombinations] adds combination and returns true`, () => {
+      const { deck, player } = getDnP();
+      const comb = deck.allCards.slice(0, 3);
+      const added = player.addCombinationToCombinations(comb);
+      equal(added, true);
+      equal(player.combinations.length, 1);
+      equal(player.combinations[0].length, 3);
+    });
+
+    it(`[addCombinationToCombinations] does not add combination if its card is already in another combination, returns false`, () => {
+      const { deck, player } = getDnP();
+      player.combinations.push([deck.allCards[0], deck.allCards[1]]);
+      equal(player.combinations.length, 1);
+      const comb = [deck.allCards[0]].concat(deck.allCards.slice(0, 3));
+      const added = player.addCombinationToCombinations(comb);
+      equal(added, false);
+      equal(player.combinations.length, 1);
+    });
+
+    it(`[addCombinationToCombinations] does not add combination if its card is found in own cards, returns false`, () => {
+      const { deck, player } = getDnP();
+      player.takeCardFromDeck();
+      equal(player.ownCards[0], deck.takenCards[0]);
+      const comb = [player.ownCards[0]].concat(deck.allCards.slice(0, 3));
+      const added = player.addCombinationToCombinations(comb);
+      equal(added, false);
+      equal(player.combinations.length, 0);
+    });
+
+    it(`[addCombinationToCombinationsFromOwnCards] adds combination, removes its cards from own cards, returns true`, () => {
+      const { deck, player } = getDnP();
+      const comb = deck.allCards.slice(0, 3);
+      player.takeCardFromDeck();
+      player.takeCardFromDeck();
+      player.takeCardFromDeck();
+      equal(player.ownCards.length, 3);
+      const added = player.addCombinationToCombinationsFromOwnCards(comb);
+      equal(added, true);
+      equal(player.combinations.length, 1);
+      equal(player.combinations[0].length, 3);
+      equal(player.ownCards.length, 0);
+    });
+
+    it(`[addCombinationToCombinationsFromOwnCards] does not add combination if own cards doesn't contain needed cards, returns false`, () => {
+      const { deck, player } = getDnP();
+      const comb = deck.allCards.slice(0, 3);
+      let added = player.addCombinationToCombinationsFromOwnCards(comb);
+      equal(added, false);
+      player.takeCardFromDeck();
+      player.takeCardFromDeck();
+      equal(player.ownCards.length, 2);
+      added = player.addCombinationToCombinationsFromOwnCards(comb);
+      equal(added, false);
+      equal(player.combinations.length, 0);
+      equal(player.ownCards.length, 2);
+    });
+
+    it(`[addCombinationToBulkOfPlayerFromCombinations] adds combination and returns true`, () => {
+      const { deck, player } = getDnP();
+      const table = new Table(deck, [player]);
+      const bulkOfPlayer = table.playersBulks.find(b => b.player === player);
+      equal(bulkOfPlayer?.player, player);
+      const comb = deck.allCards.slice(0, 3);
+      player.combinations.push(comb);
+      const added = player.addCombinationToBulkOfPlayerFromCombinations(comb);
+      equal(added, true);
+      equal(player.combinations.length, 0);
+      equal(Array.isArray(bulkOfPlayer.cards[0]), true);
+      const addedComb = bulkOfPlayer.cards[0] as Card[];
+      equal(addedComb.length, 3);
+    });
+
+    it(`[addCombinationToBulkOfPlayerFromCombinations] does not add combination if no such combination in combinations, returns false`, () => {
+      const { deck, player } = getDnP();
+      const table = new Table(deck, [player]);
+      const bulkOfPlayer = table.playersBulks.find(b => b.player === player);
+      equal(bulkOfPlayer?.player, player);
+      const comb = deck.allCards.slice(0, 3);
+      // push smaller combination
+      player.combinations.push(comb.slice(1));
+      const added = player.addCombinationToBulkOfPlayerFromCombinations(comb);
+      equal(added, false);
+      equal(player.combinations.length, 1);
+      equal(bulkOfPlayer.cards[0], undefined);
     });
   });
 

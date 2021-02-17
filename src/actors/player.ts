@@ -118,7 +118,7 @@ export default class Player {
 
   // this method calls table's method
   addCombinationToCombinationsFromBulkOfPlayer(combination: Card[]) {
-    if (!this.table) return null;
+    if (!this.table) return false;
     const takeBack = this.table.takeCombinationFromBulkOfPlayer;
     return !!takeBack(combination, this, 'combinations');
   }
