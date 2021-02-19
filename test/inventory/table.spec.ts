@@ -55,6 +55,59 @@ describe(`Table`, () => {
     });
   });
 
+  describe(`[addPlayer]`, () => {
+    it(`adds player to table`, () => {
+      const { deck, player } = getDnP();
+      const table = new Table(deck, [player]);
+      const player2 = new Player(deck);
+      equal(table.getAllPlayers().length, 1);
+      const added = table.addPlayer(player2);
+      equal(added, true);
+      equal(table.getAllPlayers().length, 2);
+      equal(player2.deck, deck);
+    });
+
+    it(`does not add already existing player to table`, () => {
+      const { deck, player } = getDnP();
+      const table = new Table(deck, [player]);
+      equal(table.getAllPlayers().length, 1);
+      const added = table.addPlayer(player);
+      equal(added, false);
+      equal(table.getAllPlayers().length, 1);
+    });
+  });
+
+  describe(`[removePlayer]`, () => {
+    it(`removes player from table`, () => {
+      const { deck, player } = getDnP();
+      const table = new Table(deck, [player]);
+      const [c1, c2, c3, c4, c5, c6, c7, c8] = deck.allCards;
+      player.ownCards = [c1, c2];
+      player.combinations = [[c3, c4, c5]];
+      table.playersBulks[1].cards = [c6, [c7, c8]];
+
+      equal(table.getAllPlayers().length, 1);
+      equal(table.playersBulks.length, 2); // first is fake (null) player
+      const removed = table.removePlayer(player);
+      equal(removed, true);
+      equal(table.getAllPlayers().length, 0);
+      equal(table.playersBulks.length, 1);
+      equal(player.ownCards.length, 0);
+      equal(player.combinations.length, 0);
+      equal(table.discardPile.length, 8);
+    });
+
+    it(`does not remove unknown (not connected to table) player`, () => {
+      const { deck, player } = getDnP();
+      const table = new Table(deck, [player]);
+      const player2 = new Player(deck);
+      equal(table.getAllPlayers().length, 1);
+      const removed = table.removePlayer(player2);
+      equal(removed, false);
+      equal(table.getAllPlayers().length, 1);
+    });
+  });
+
   describe(`[addCardToDiscardPile]`, () => {
     it(`adds a card and returns true`, () => {
       const { deck } = getDnP();

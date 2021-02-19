@@ -264,6 +264,23 @@ describe(`Player`, () => {
         equal(player.ownCards.length, 1);
       });
     });
+
+    describe(`[ditchAllCardsToDiscardPile]`, () => {
+      it(`removes all cards from player and put them into discardPile`, () => {
+        const { deck, player } = getDnP();
+        new Table(deck, [player]);
+        const [c1, c2, c3] = deck.allCards;
+        player.ownCards.push(c1);
+        player.combinations.push([c2, c3]);
+        equal(player.ownCards.length, 1);
+        equal(player.combinations.length, 1);
+
+        const ditched = player.ditchAllCardsToDiscardPile();
+        equal(ditched, true);
+        equal(player.ownCards.length, 0);
+        equal(player.combinations.length, 0);
+      });
+    });
   });
 
   describe(`new Player(deck), methods which interact with deck`, () => {
@@ -327,6 +344,7 @@ describe(`Player`, () => {
         const idxInCopied2 = copiedAllCards.findIndex(c => c === card2);
         const idxInCopied3 = copiedAllCards.findIndex(c => c === card3);
         const idxInCopied4 = copiedAllCards.findIndex(c => c === card4);
+        // prettier-ignore
         const res = [
           idxInCopied1 !== idxInCopied2 - 1 && idxInCopied1 !== idxInCopied2 + 1,
           idxInCopied2 !== idxInCopied3 - 1 && idxInCopied2 !== idxInCopied3 + 1,
