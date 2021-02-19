@@ -28,22 +28,64 @@ export default class Table {
       throw new Error('Each player must be Player when creating new Table.');
     }
 
-    players.forEach(p => p.connectToTable(this));
-
     this.deck = deck;
-    this.playersCorners = players.map(p => ({
-      player: p,
-      cards: [],
-      buyInCards: [],
-    }));
+    this.playersCorners = [];
     this.playersBulks = [
       // null bulk will obtain non-related to actual players cards if any
       { player: null, cards: [] },
-      ...players.map(p => ({ player: p, cards: [] })),
     ];
+
+    players.forEach(p => p.connectToTable(this));
+
     this.beatArea = [];
     this.trumpCardCell = null;
     this.discardPile = [];
+  }
+
+  private makeCornerOfPlayer(player: Player) {
+    return {
+      player,
+      cards: [],
+      buyInCards: [],
+    };
+  }
+
+  private makeBulkOfPlayer(player: Player) {
+    return {
+      player,
+      cards: [],
+    };
+  }
+
+  getAllPlayers() {
+    return this.playersCorners.map(c => c.player);
+  }
+
+  isNewPlayer(player: Player) {
+    return !this.getAllPlayers().includes(player);
+  }
+
+  addPlayer(player: Player) {
+    if (this.isNewPlayer(player)) {
+      this.playersCorners.push(this.makeCornerOfPlayer(player));
+      this.playersBulks.push(this.makeBulkOfPlayer(player));
+      return true;
+    }
+    return false;
+  }
+
+  removePlayer(player: Player) {
+    if (!this.isNewPlayer(player)) {
+      this.revokeAllCardsFromBulkOfPlayer(player, ['discardPile']);
+      player.ditchAllCardsToDiscardPile();
+      const idx1 = this.getBulkOfPlayerIdx(player);
+      const idx2 = this.getCornerOfPlayerIdx(player);
+      this.addCombinationToDiscardPile(this.playersCorners[idx2].buyInCards);
+      this.playersBulks.splice(idx1, 1);
+      this.playersCorners.splice(idx2, 1);
+      return true;
+    }
+    return false;
   }
 
   addCardToDiscardPile(card: Card) {
@@ -70,6 +112,18 @@ export default class Table {
 
   getBulkOfPlayer(player: Player | null) {
     return this.playersBulks.find(bulk => bulk.player === player) || null;
+  }
+
+  getBulkOfPlayerIdx(player: Player) {
+    return this.playersBulks.findIndex(bulk => bulk.player === player);
+  }
+
+  getCornerOfPlayer(player: Player) {
+    return this.playersCorners.find(bulk => bulk.player === player) || null;
+  }
+
+  getCornerOfPlayerIdx(player: Player) {
+    return this.playersCorners.findIndex(bulk => bulk.player === player);
   }
 
   // no check for if there is already such card or combination in bulkOfPlayer

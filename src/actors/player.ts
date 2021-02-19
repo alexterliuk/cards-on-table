@@ -30,8 +30,11 @@ export default class Player {
   // when new table is instantiated
   // it invokes this method of each got player
   connectToTable(table: Table) {
-    this.table = table;
-    return true;
+    if (table.addPlayer(this)) {
+      this.table = table;
+      return true;
+    }
+    return false;
   }
 
   isConnectedToTable() {
