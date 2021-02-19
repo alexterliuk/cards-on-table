@@ -3,6 +3,13 @@ import Card from '../inventory/card';
 import Player from '../actors/player';
 import findIndexOfMatchedArray from '../lib/find-index-of-matched-array';
 
+/**
+ * method naming rules:
+ * - addSmth     - returns boolean
+ * - getSmth     - returns smth
+ * - takeSmth    - removes smth from where it is, and returns smth
+ * - revokeSmth  - same as takeSmth but returns boolean
+ */
 export default class Table {
   deck: Deck;
   playersCorners: { player: Player; cards: Card[]; buyInCards: Card[] }[];
@@ -11,7 +18,7 @@ export default class Table {
   trumpCardCell: Card | null;
   discardPile: Card[];
 
-  constructor(deck: Deck, players: Player[]) {
+  constructor(deck: Deck, players: Player[] = []) {
     if (!(deck instanceof Deck)) {
       throw new Error('deck must be instance of Deck when creating new Table.');
     }
@@ -30,7 +37,7 @@ export default class Table {
       buyInCards: [],
     }));
     this.playersBulks = [
-      // null bulk will get non-related to actual players cards if any
+      // null bulk will obtain non-related to actual players cards if any
       { player: null, cards: [] },
       ...players.map(p => ({ player: p, cards: [] })),
     ];
@@ -62,9 +69,11 @@ export default class Table {
   }
 
   getBulkOfPlayer(player: Player | null) {
-    return this.playersBulks.find(bulk => bulk.player === player);
+    return this.playersBulks.find(bulk => bulk.player === player) || null;
   }
 
+  // no check for if there is already such card or combination in bulkOfPlayer
+  // check is provided by next two functions below
   addCardOrCombinationToBulkOfPlayer(
     data: Card | Card[],
     player: Player | null
@@ -133,7 +142,6 @@ export default class Table {
           return added ? (cards.splice(idx, 1)[0] as Card[]) : null;
         }
         if (destination === 'combinations') {
-          // prettier-ignore
           const added = player?.addCombinationToCombinations(combination);
           return added ? (cards.splice(idx, 1)[0] as Card[]) : null;
         }
@@ -144,7 +152,7 @@ export default class Table {
 
   revokeAllCardsFromBulkOfPlayer(
     player: Player | null,
-    destination: ('ownCards' | 'combinations')[] = []
+    destination: ('ownCards' | 'combinations' | 'discardPile')[] = []
   ): boolean {
     const bulkOfPlayer = this.getBulkOfPlayer(player);
     if (bulkOfPlayer) {
@@ -160,14 +168,14 @@ export default class Table {
       });
 
       cards.forEach(c => {
-        this.takeCardFromBulkOfPlayer(c, player, toOwnCards || undefined);
+        this.takeCardFromBulkOfPlayer(c, player, toOwnCards || 'discardPile');
       });
       // prettier-ignore
       combinations.forEach(c => {
-        this.takeCombinationFromBulkOfPlayer(c, player, toCombinations || undefined);
+        this.takeCombinationFromBulkOfPlayer(c, player, toCombinations || 'discardPile');
       });
 
-      return !!bulkOfPlayer.cards.length;
+      return !bulkOfPlayer.cards.length;
     }
     return false;
   }
