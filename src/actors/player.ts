@@ -143,6 +143,17 @@ export default class Player {
     return false;
   }
 
+  ditchAllCardsToDiscardPile() {
+    const cards = [...this.ownCards, ...this.combinations].flat();
+    const ditchedAll = this.table?.addCombinationToDiscardPile(cards);
+    if (ditchedAll) {
+      this.ownCards = [];
+      this.combinations = [];
+      return true;
+    }
+    return false;
+  }
+
   // ==================== interacting with deck ====================
 
   shuffleDeck(): Card[] {
