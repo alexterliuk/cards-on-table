@@ -370,6 +370,59 @@ describe(`Player`, () => {
         equal(table.playersCorners[0].takes[0].length, 1);
       });
     });
+
+    describe(`[beatWithCard]`, () => {
+      it(`moves a card from player's own cards to beat area, returns true`, () => {
+        const { deck, player } = getDnP();
+        const table = new Table(deck, [player]);
+        const [c1] = deck.allCards;
+        player.ownCards.push(c1);
+        equal(c1.opened, false);
+        equal(player.ownCards.length, 1);
+        equal(table.beatArea.length, 0);
+
+        const moved = player.beatWithCard(c1);
+        equal(moved, true);
+        equal(c1.opened, true);
+        equal(player.ownCards.length, 0);
+        equal(table.beatArea.length, 1);
+        equal(table.beatArea[0].player, player);
+        equal(table.beatArea[0].cards.length, 1);
+        equal(table.beatArea[0].cards[0], c1);
+      });
+
+      it(`does not add a card to beat area if player does not have such card in own cards, returns false`, () => {
+        const { deck, player } = getDnP();
+        const table = new Table(deck, [player]);
+        const [c1] = deck.allCards;
+        equal(c1.opened, false);
+        equal(player.ownCards.length, 0);
+        equal(table.beatArea.length, 0);
+
+        const added = player.beatWithCard(c1);
+        equal(added, false);
+        equal(c1.opened, false);
+        equal(player.ownCards.length, 0);
+        equal(table.beatArea.length, 0);
+      });
+
+      it(`does not add a card if beat area already has such card, returns false`, () => {
+        const { deck, player } = getDnP();
+        const table = new Table(deck, [player]);
+        const [c1] = deck.allCards;
+        equal(c1.opened, false);
+        player.ownCards.push(c1);
+        table.beatArea.push({ player, cards: [c1] });
+        equal(player.ownCards.length, 1);
+        equal(table.beatArea.length, 1);
+
+        const added = player.beatWithCard(c1);
+        equal(added, false);
+        equal(c1.opened, false);
+        equal(player.ownCards.length, 1);
+        equal(table.beatArea.length, 1);
+      });
+    });
   });
 
   describe(`new Player(deck), methods which interact with deck`, () => {

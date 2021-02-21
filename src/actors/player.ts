@@ -192,6 +192,19 @@ export default class Player {
     return this.pickUpAllBeatAreaCards('takes');
   }
 
+  beatWithCard(card: Card) {
+    if (this.isConnectedToTable() && this.ownCards.includes(card)) {
+      const tbl = this.table as Table;
+      const added = tbl.addCardToBeatArea(card, this);
+      if (added) {
+        card.open();
+        this.removeCardFromOwnCards(card);
+        return true;
+      }
+    }
+    return false;
+  }
+
   // ===============================================================
   // interacting mainly with deck
 
