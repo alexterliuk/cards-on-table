@@ -126,6 +126,14 @@ export default class Table {
     return this.playersCorners.findIndex(bulk => bulk.player === player);
   }
 
+  getCardsFromBeatArea() {
+    return this.beatArea.map(item => item.cards).flat();
+  }
+
+  clearBeatArea() {
+    this.beatArea = [];
+  }
+
   // no check for if there is already such card or combination in bulkOfPlayer
   // check is provided by next two functions below
   addCardOrCombinationToBulkOfPlayer(

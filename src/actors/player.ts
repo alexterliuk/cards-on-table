@@ -157,7 +157,30 @@ export default class Player {
     return false;
   }
 
-  // ==================== interacting with deck ====================
+  pickUpAllBeatAreaCards(destination: 'ownCards') {
+    if (this.isConnectedToTable()) {
+      const tbl = this.table as Table;
+      const cards = tbl.getCardsFromBeatArea();
+
+      if (destination === 'ownCards') {
+        const ownCardsBackup = this.ownCards.slice();
+        const pickedUp = cards.map(c => this.addCardToOwnCards(c));
+        if (!pickedUp.includes(false)) {
+          tbl.clearBeatArea();
+          return true;
+        }
+        this.ownCards = ownCardsBackup;
+      }
+    }
+    return false;
+  }
+
+  pickUpAllBeatAreaCardsToOwnCards() {
+    return this.pickUpAllBeatAreaCards('ownCards');
+  }
+
+  // ===============================================================
+  // interacting mainly with deck
 
   shuffleDeck(): Card[] {
     return this.deck.shuffle();

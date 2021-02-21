@@ -281,6 +281,49 @@ describe(`Player`, () => {
         equal(player.combinations.length, 0);
       });
     });
+
+    describe(`[pickUpAllBeatAreaCardsToOwnCards]`, () => {
+      it(`moves all cards from beat area to player's own cards`, () => {
+        const { deck, player } = getDnP();
+        const player2 = new Player(deck);
+        const player3 = new Player(deck);
+        const table = new Table(deck, [player, player2, player3]);
+
+        const [c1, c2, c3] = deck.allCards;
+        table.beatArea.push({ player, cards: [c1] });
+        table.beatArea.push({ player: player2, cards: [c2] });
+        table.beatArea.push({ player: player3, cards: [c3] });
+        equal(table.beatArea.length, 3);
+        equal(player.ownCards.length, 0);
+
+        const pickedUp = player.pickUpAllBeatAreaCardsToOwnCards();
+        equal(pickedUp, true);
+        equal(table.beatArea.length, 0);
+        equal(player.ownCards.length, 3);
+      });
+
+      it(`does not move any card from beat area, if player already has in own cards a card from beat area`, () => {
+        const { deck, player } = getDnP();
+        const player2 = new Player(deck);
+        const player3 = new Player(deck);
+        const table = new Table(deck, [player, player2, player3]);
+
+        const [c1, c2, c3] = deck.allCards;
+        table.beatArea.push({ player, cards: [c1] });
+        table.beatArea.push({ player: player2, cards: [c2] });
+        table.beatArea.push({ player: player3, cards: [c3] });
+        player.ownCards.push(c2);
+        equal(table.beatArea.length, 3);
+        equal(player.ownCards.length, 1);
+        equal(player.ownCards[0] === c2, true);
+
+        const pickedUp = player.pickUpAllBeatAreaCardsToOwnCards();
+        equal(pickedUp, false);
+        equal(table.beatArea.length, 3);
+        equal(player.ownCards.length, 1);
+        equal(player.ownCards[0] === c2, true);
+      });
+    });
   });
 
   describe(`new Player(deck), methods which interact with deck`, () => {
