@@ -201,6 +201,33 @@ describe(`Table`, () => {
     });
   });
 
+  describe(`[addCardToBeatArea]`, () => {
+    it(`adds a card to beat area, returns true`, () => {
+      const { deck, player } = getDnP();
+      const table = new Table(deck, [player]);
+      const [c1] = deck.allCards;
+      equal(table.beatArea.length, 0);
+      const added = table.addCardToBeatArea(c1, player);
+      equal(added, true);
+      equal(table.beatArea.length, 1);
+      equal(table.beatArea[0].player, player);
+      equal(table.beatArea[0].cards[0], c1);
+    });
+
+    it(`does not a card to beat area if it already has such card, returns false`, () => {
+      const { deck, player } = getDnP();
+      const table = new Table(deck, [player]);
+      const [c1] = deck.allCards;
+      table.beatArea.push({ player, cards: [c1] });
+      equal(table.beatArea.length, 1);
+      const added = table.addCardToBeatArea(c1, player);
+      equal(added, false);
+      equal(table.beatArea.length, 1);
+      equal(table.beatArea[0].player, player);
+      equal(table.beatArea[0].cards[0], c1);
+    });
+  });
+
   describe(`[addTakeToTakes]`, () => {
     it(`add a take to player's takes collection, returns true`, () => {
       const { deck, player } = getDnP();

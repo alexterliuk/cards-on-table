@@ -141,6 +141,14 @@ export default class Table {
     this.beatArea = [];
   }
 
+  addCardToBeatArea(card: Card, player: Player) {
+    if (!this.getCardsFromBeatArea().includes(card)) {
+      this.beatArea.push({ player, cards: [card] });
+      return true;
+    }
+    return false;
+  }
+
   getTakes(player: Player) {
     const corner = this.getCornerOfPlayer(player);
     return corner?.takes || [];
