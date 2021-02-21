@@ -2,6 +2,7 @@ import Deck from '../inventory/deck';
 import Card from '../inventory/card';
 import Player from '../actors/player';
 import findIndexOfMatchedArray from '../lib/find-index-of-matched-array';
+import areAllValsInTarget from '../lib/utils/are-all-vals-in-target';
 
 /**
  * method naming rules:
@@ -12,7 +13,12 @@ import findIndexOfMatchedArray from '../lib/find-index-of-matched-array';
  */
 export default class Table {
   deck: Deck;
-  playersCorners: { player: Player; cards: Card[]; buyInCards: Card[] }[];
+  playersCorners: {
+    player: Player;
+    cards: Card[];
+    buyInCards: Card[];
+    takes: Card[][];
+  }[];
   playersBulks: { player: Player | null; cards: (Card | Card[])[] }[];
   beatArea: { player: Player; cards: Card[] }[];
   trumpCardCell: Card | null;
@@ -47,6 +53,7 @@ export default class Table {
       player,
       cards: [],
       buyInCards: [],
+      takes: [],
     };
   }
 
@@ -132,6 +139,20 @@ export default class Table {
 
   clearBeatArea() {
     this.beatArea = [];
+  }
+
+  getTakes(player: Player) {
+    const corner = this.getCornerOfPlayer(player);
+    return corner?.takes || [];
+  }
+
+  addTakeToTakes(take: Card[], player: Player) {
+    const takes = this.getTakes(player);
+    if (areAllValsInTarget('absent', take, takes)) {
+      takes.push(take);
+      return true;
+    }
+    return false;
   }
 
   // no check for if there is already such card or combination in bulkOfPlayer

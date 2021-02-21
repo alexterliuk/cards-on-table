@@ -201,6 +201,31 @@ describe(`Table`, () => {
     });
   });
 
+  describe(`[addTakeToTakes]`, () => {
+    it(`add a take to player's takes collection, returns true`, () => {
+      const { deck, player } = getDnP();
+      const table = new Table(deck, [player]);
+      const [c1, c2, c3] = deck.allCards;
+      equal(table.playersCorners[0].takes.length, 0);
+      const added = table.addTakeToTakes([c1, c2, c3], player);
+      equal(added, true);
+      equal(table.playersCorners[0].takes.length, 1);
+      equal(table.playersCorners[0].takes[0].length, 3);
+    });
+
+    it(`does not add a take if player's takes collection already includes a card from this take, returns false`, () => {
+      const { deck, player } = getDnP();
+      const table = new Table(deck, [player]);
+      const [c1, c2, c3] = deck.allCards;
+      table.playersCorners[0].takes.push([c2]);
+      equal(table.playersCorners[0].takes.length, 1);
+      const added = table.addTakeToTakes([c1, c2, c3], player);
+      equal(added, false);
+      equal(table.playersCorners[0].takes.length, 1);
+      equal(table.playersCorners[0].takes[0].length, 1);
+    });
+  });
+
   describe(`[addCardOrCombinationToBulkOfPlayer]`, () => {
     it(`adds a card and returns true`, () => {
       const { deck, player } = getDnP();

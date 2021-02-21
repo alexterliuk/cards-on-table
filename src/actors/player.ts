@@ -41,8 +41,9 @@ export default class Player {
     return this.table instanceof Table;
   }
 
-  // ========== interacting with ownCards || combinations ==========
-  // these methods are rather called by other methods than directly
+  // ===============================================================
+  // interacting with ownCards || combinations || takes
+  // (takes collection is in table's playersCorners)
 
   addCardToOwnCards(card: Card | null, idx?: number): boolean {
     if (card instanceof Card) {
@@ -157,7 +158,7 @@ export default class Player {
     return false;
   }
 
-  pickUpAllBeatAreaCards(destination: 'ownCards') {
+  pickUpAllBeatAreaCards(destination: 'ownCards' | 'takes') {
     if (this.isConnectedToTable()) {
       const tbl = this.table as Table;
       const cards = tbl.getCardsFromBeatArea();
@@ -171,12 +172,24 @@ export default class Player {
         }
         this.ownCards = ownCardsBackup;
       }
+
+      if (destination === 'takes') {
+        const pickedUp = tbl.addTakeToTakes(cards, this);
+        if (pickedUp) {
+          tbl.clearBeatArea();
+          return true;
+        }
+      }
     }
     return false;
   }
 
   pickUpAllBeatAreaCardsToOwnCards() {
     return this.pickUpAllBeatAreaCards('ownCards');
+  }
+
+  pickUpAllBeatAreaCardsToTakes() {
+    return this.pickUpAllBeatAreaCards('takes');
   }
 
   // ===============================================================

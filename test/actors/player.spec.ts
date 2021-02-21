@@ -283,7 +283,7 @@ describe(`Player`, () => {
     });
 
     describe(`[pickUpAllBeatAreaCardsToOwnCards]`, () => {
-      it(`moves all cards from beat area to player's own cards`, () => {
+      it(`moves all cards from beat area to player's own cards, returns true`, () => {
         const { deck, player } = getDnP();
         const player2 = new Player(deck);
         const player3 = new Player(deck);
@@ -302,7 +302,8 @@ describe(`Player`, () => {
         equal(player.ownCards.length, 3);
       });
 
-      it(`does not move any card from beat area, if player already has in own cards a card from beat area`, () => {
+      it(`does not move any card from beat area, if player already has in own cards
+          a card from beat area, returns false`, () => {
         const { deck, player } = getDnP();
         const player2 = new Player(deck);
         const player3 = new Player(deck);
@@ -322,6 +323,51 @@ describe(`Player`, () => {
         equal(table.beatArea.length, 3);
         equal(player.ownCards.length, 1);
         equal(player.ownCards[0] === c2, true);
+      });
+    });
+
+    describe(`[pickUpAllBeatAreaCardsToTakes]`, () => {
+      it(`moves all cards from beat area to player's takes collection, returns true`, () => {
+        const { deck, player } = getDnP();
+        const player2 = new Player(deck);
+        const player3 = new Player(deck);
+        const table = new Table(deck, [player, player2, player3]);
+
+        const [c1, c2, c3] = deck.allCards;
+        table.beatArea.push({ player, cards: [c1] });
+        table.beatArea.push({ player: player2, cards: [c2] });
+        table.beatArea.push({ player: player3, cards: [c3] });
+        equal(table.beatArea.length, 3);
+        equal(table.playersCorners[0].player, player);
+        equal(table.playersCorners[0].takes.length, 0);
+
+        const pickedUp = player.pickUpAllBeatAreaCardsToTakes();
+        equal(pickedUp, true);
+        equal(table.beatArea.length, 0);
+        equal(table.playersCorners[0].takes.length, 1);
+        equal(table.playersCorners[0].takes[0].length, 3);
+      });
+
+      it(`does not move any card from beat area, if player already has in takes collection
+          a card from beat area, returns false`, () => {
+        const { deck, player } = getDnP();
+        const player2 = new Player(deck);
+        const player3 = new Player(deck);
+        const table = new Table(deck, [player, player2, player3]);
+
+        const [c1, c2, c3] = deck.allCards;
+        table.beatArea.push({ player, cards: [c1] });
+        table.beatArea.push({ player: player2, cards: [c2] });
+        table.beatArea.push({ player: player3, cards: [c3] });
+        table.playersCorners[0].takes.push([c3]);
+        equal(table.beatArea.length, 3);
+        equal(table.playersCorners[0].takes.length, 1);
+
+        const pickedUp = player.pickUpAllBeatAreaCardsToTakes();
+        equal(pickedUp, false);
+        equal(table.beatArea.length, 3);
+        equal(table.playersCorners[0].takes.length, 1);
+        equal(table.playersCorners[0].takes[0].length, 1);
       });
     });
   });
