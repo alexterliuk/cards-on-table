@@ -2,6 +2,7 @@ import { strictEqual as equal } from 'assert';
 import {
   isObject,
   isRegExp,
+  areArrays,
   areStrings,
   areNumbers,
   isInfinity,
@@ -37,6 +38,20 @@ describe(`Value checkers`, () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       const smthElse = [null, 1, [], {}, '', () => {}, false, true, undefined];
       equal(areAllValsFalse(isRegExp, smthElse), true);
+    });
+  });
+
+  describe(`areArrays`, () => {
+    it(`returns true if every given val is array`, () => {
+      equal(areArrays([''], [], [true], [{}]), true);
+    });
+
+    it(`returns false if any given val is not array`, () => {
+      equal(areArrays([''], [], [true], 8, [{}]), false);
+    });
+
+    it(`returns false if called without arguments`, () => {
+      equal(areArrays(), false);
     });
   });
 

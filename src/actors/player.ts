@@ -1,11 +1,15 @@
 import Deck from '../inventory/deck';
 import Card from '../inventory/card';
+import Table from '../inventory/table';
 import getRandomFloor from '../lib/utils/get-random-floor';
+import findIndexOfMatchedArray from '../lib/find-index-of-matched-array';
+import areAllValsInTarget from '../lib/utils/are-all-vals-in-target';
 
 export default class Player {
   deck: Deck;
+  table: Table | null;
   ownCards: Card[];
-  combinations: { name: string; cards: Card[] }[];
+  combinations: Card[][];
   fines: { name: string; value: number }[];
   bonuses: { name: string; value: number }[];
 
@@ -16,14 +20,30 @@ export default class Player {
       );
     }
     this.deck = deck;
+    this.table = null;
     this.ownCards = [];
     this.combinations = [];
     this.fines = [];
     this.bonuses = [];
   }
 
-  // ================== interacting with ownCards ==================
-  // these methods are called rather by other methods than directly
+  // when new table is instantiated
+  // it invokes this method of each got player
+  connectToTable(table: Table) {
+    if (table.addPlayer(this)) {
+      this.table = table;
+      return true;
+    }
+    return false;
+  }
+
+  isConnectedToTable() {
+    return this.table instanceof Table;
+  }
+
+  // ===============================================================
+  // interacting with ownCards || combinations || takes
+  // (takes collection is in table's playersCorners)
 
   addCardToOwnCards(card: Card | null, idx?: number): boolean {
     if (card instanceof Card) {
@@ -51,7 +71,142 @@ export default class Player {
       : { card: this.ownCards.splice(idx, 1)[0], idx };
   }
 
-  // ==================== interacting with deck ====================
+  // used by table's takeCombinationFromBulkOfPlayer which is responsible
+  // for removing combination from playersBulks (it removes in case if
+  // player's addCombinationToCombinations successfully fulfills its job)
+  // prettier-ignore
+  addCombinationToCombinations(combination: Card[]): boolean {
+    const allCardsAbsentInCombinations =
+      areAllValsInTarget('absent', combination, this.combinations, 2);
+    const allCardsAbsentInOwnCards = 
+      areAllValsInTarget('absent', combination, this.ownCards);
+
+    if (!allCardsAbsentInCombinations || !allCardsAbsentInOwnCards)
+      return false;
+
+    this.combinations.push(combination);
+    return true;
+  }
+
+  // prettier-ignore
+  addCombinationToCombinationsFromOwnCards(combination: Card[]): boolean {
+    const allCardsAbsentInCombinations =
+      areAllValsInTarget('absent', combination, this.combinations, 2);
+    const allCardsPresentInOwnCards =
+      areAllValsInTarget('present', combination, this.ownCards);
+
+    if (!allCardsAbsentInCombinations || !allCardsPresentInOwnCards)
+      return false;
+
+    const copiedOwnCards = this.ownCards.map(c => c);
+    const indices = combination.map(card => this.removeCardFromOwnCards(card));
+    if (indices.length !== combination.length) {
+      // all cards which compose combination should have been removed,
+      // but it's not for unknown reason; return cards back to ownCards
+      indices.forEach(idx => this.addCardToOwnCards(copiedOwnCards[idx], idx));
+      return false;
+    }
+
+    this.combinations.push(combination);
+    return true;
+  }
+
+  // this method calls table's method
+  addCombinationToBulkOfPlayerFromCombinations(combination: Card[]) {
+    if (!this.table) return false;
+    const idx = findIndexOfMatchedArray(this.combinations, combination);
+    if (idx === -1) return false;
+    const added = this.table.addCombinationToBulkOfPlayer(combination, this);
+    return added ? (this.combinations.splice(idx, 1), true) : false;
+  }
+
+  // this method calls table's method
+  addCombinationToCombinationsFromBulkOfPlayer(combination: Card[]) {
+    if (!this.table) return false;
+    const takeBack = this.table.takeCombinationFromBulkOfPlayer;
+    return !!takeBack(combination, this, 'combinations');
+  }
+
+  // prettier-ignore
+  returnCombinationToOwnCards(combination: Card[]) {
+    let idx = findIndexOfMatchedArray(this.combinations, combination);
+    if (idx === -1) {
+      this.addCombinationToCombinationsFromBulkOfPlayer(combination);
+      idx = findIndexOfMatchedArray(this.combinations, combination);
+    }
+
+    if (idx > -1) {
+      const safeToReturn = areAllValsInTarget('absent', combination, this.ownCards);
+      if (safeToReturn) {
+        this.combinations.splice(idx, 1);
+        combination.forEach(card => this.addCardToOwnCards(card));
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  ditchAllCardsToDiscardPile() {
+    const cards = [...this.ownCards, ...this.combinations].flat();
+    const ditchedAll = this.table?.addCombinationToDiscardPile(cards);
+    if (ditchedAll) {
+      this.ownCards = [];
+      this.combinations = [];
+      return true;
+    }
+    return false;
+  }
+
+  pickUpAllBeatAreaCards(destination: 'ownCards' | 'takes') {
+    if (this.isConnectedToTable()) {
+      const tbl = this.table as Table;
+      const cards = tbl.getCardsFromBeatArea();
+
+      if (destination === 'ownCards') {
+        const ownCardsBackup = this.ownCards.slice();
+        const pickedUp = cards.map(c => this.addCardToOwnCards(c));
+        if (!pickedUp.includes(false)) {
+          tbl.clearBeatArea();
+          return true;
+        }
+        this.ownCards = ownCardsBackup;
+      }
+
+      if (destination === 'takes') {
+        const pickedUp = tbl.addTakeToTakes(cards, this);
+        if (pickedUp) {
+          tbl.clearBeatArea();
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  pickUpAllBeatAreaCardsToOwnCards() {
+    return this.pickUpAllBeatAreaCards('ownCards');
+  }
+
+  pickUpAllBeatAreaCardsToTakes() {
+    return this.pickUpAllBeatAreaCards('takes');
+  }
+
+  beatWithCard(card: Card) {
+    if (this.isConnectedToTable() && this.ownCards.includes(card)) {
+      const tbl = this.table as Table;
+      const added = tbl.addCardToBeatArea(card, this);
+      if (added) {
+        card.open();
+        this.removeCardFromOwnCards(card);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // ===============================================================
+  // interacting mainly with deck
 
   shuffleDeck(): Card[] {
     return this.deck.shuffle();

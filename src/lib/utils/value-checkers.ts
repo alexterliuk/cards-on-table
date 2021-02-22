@@ -8,6 +8,9 @@ export const isNull = (v: any) => v === null;
 
 export const isArray = (v: any) => Array.isArray(v);
 
+export const areArrays = (...data: any) =>
+  !!data.length && data.every((v: any) => isArray(v));
+
 export const isObject = (v: any) =>
   typeof v === 'object' && !isNull(v) && !isArray(v) && !isRegExp(v);
 
