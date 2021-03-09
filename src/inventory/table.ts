@@ -164,7 +164,7 @@ export default class Table {
   }
 
   // no check for if there is already such card or combination in bulkOfPlayer
-  // check is provided by next two functions below
+  // checks are provided by next two functions below
   addCardOrCombinationToBulkOfPlayer(
     data: Card | Card[],
     player: Player | null
