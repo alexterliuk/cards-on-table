@@ -120,7 +120,7 @@ describe(`Deck`, () => {
       equal(deck.takenCards.length === takenCardsLength + 1, true);
     });
 
-    it(`[takeCardFromAllCards] takes random card`, () => {
+    it(`[takeRandomCardFromAllCards] takes random card`, () => {
       const deck = new Deck(deckCardsData);
       // omit test in case if deckCardsData in future will have data for just a few cards
       if (deck.allCards.length > 5) {
