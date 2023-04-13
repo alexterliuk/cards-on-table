@@ -1,11 +1,12 @@
 {
-  "name": "cards-on-table",
+  "name": "@alexterliuk/cards-on-table",
   "version": "0.0.1",
   "description": "Playing cards",
   "author": "Alex Terliuk <alex.terliuk@gmail.com>",
   "license": "MIT",
-  "main": "src/index.js",
+  "main": "src/index.ts",
   "type": "module",
+  "homepage": "https://github.com/alexterliuk/cards-on-table",
   "scripts": {
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "build": "rollup -c",
