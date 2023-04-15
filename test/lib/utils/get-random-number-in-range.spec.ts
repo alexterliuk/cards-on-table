@@ -50,12 +50,12 @@ describe(`getRandomNumberInRange`, () => {
           results.filter((q, y) => {
             // prevent comparing value with itself
             if (i !== y) return r === q;
-          }).length
+          }).length,
       );
       // let maximum coincidences of the same floating number be 2,
       // though it is unlikely that even one coincidence might happen
       const sameFloatingNumberCoincidences = equals.filter(
-        coincidences => coincidences > 0
+        coincidences => coincidences > 0,
       );
       // if one coincidence, arr is [1, 1], if more - length will be bigger
       equal(sameFloatingNumberCoincidences.length < 3, true);

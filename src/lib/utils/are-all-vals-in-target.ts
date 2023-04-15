@@ -7,7 +7,7 @@ const areAllValsInTarget = (
   expect: 'absent' | 'present',
   vals: any[],
   target: any[],
-  flatToLevel?: number
+  flatToLevel?: number,
 ): boolean => {
   if (!areArrays(vals, target)) return false;
   const [valsFlat, targetFlat] = flatArrays(flatToLevel || null, vals, target);

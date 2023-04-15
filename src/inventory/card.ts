@@ -10,7 +10,7 @@ export default class Card {
   constructor(name: string, value: number, suit: string, rank: number) {
     if (!areStrings(name, suit) || !areNumbers(value, rank)) {
       throw new Error(
-        'Invalid param passed when creating new card: name, suit must be strings; value, rank must be numbers.'
+        'Invalid param passed when creating new card: name, suit must be strings; value, rank must be numbers.',
       );
     }
 

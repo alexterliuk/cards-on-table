@@ -9,7 +9,7 @@ const areValidValsByInstance = (
   arr: unknown[],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   klass: any,
-  allowEmptyArr?: boolean
+  allowEmptyArr?: boolean,
 ): undefined | boolean => {
   if (!isArray(arr) || !isFunction(klass)) return;
   if (allowEmptyArr && !arr.length) return true;

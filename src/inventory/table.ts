@@ -105,7 +105,7 @@ export default class Table {
 
   addCombinationToDiscardPile(combination: Card[]) {
     const allCardsAbsentInDiscardPile = this.discardPile.every(
-      c => !combination.includes(c)
+      c => !combination.includes(c),
     );
     if (!allCardsAbsentInDiscardPile) return false;
 
@@ -167,7 +167,7 @@ export default class Table {
   // checks are provided by next two functions below
   addCardOrCombinationToBulkOfPlayer(
     data: Card | Card[],
-    player: Player | null
+    player: Player | null,
   ) {
     const bulkOfPlayer = this.getBulkOfPlayer(player);
     if (bulkOfPlayer) {
@@ -184,7 +184,7 @@ export default class Table {
 
   addCombinationToBulkOfPlayer(combination: Card[], player: Player | null) {
     const allCardsAbsentInPlayersBulks = this.getAllCardsFromPlayersBulks().every(
-      c => !combination.includes(c)
+      c => !combination.includes(c),
     );
     if (!allCardsAbsentInPlayersBulks) return false;
     return this.addCardOrCombinationToBulkOfPlayer(combination, player);
@@ -194,7 +194,7 @@ export default class Table {
   takeCardFromBulkOfPlayer(
     card: Card,
     player: Player | null,
-    destination?: 'ownCards' | 'discardPile'
+    destination?: 'ownCards' | 'discardPile',
   ): Card | null {
     if (!this.getAllCardsFromPlayersBulks().includes(card)) return null;
     const bulkOfPlayer = this.getBulkOfPlayer(player);
@@ -221,7 +221,7 @@ export default class Table {
   takeCombinationFromBulkOfPlayer = (
     combination: Card[],
     player: Player | null,
-    destination?: 'combinations' | 'discardPile'
+    destination?: 'combinations' | 'discardPile',
   ): Card[] | null => {
     const bulkOfPlayer = this.getBulkOfPlayer(player);
     if (bulkOfPlayer) {
@@ -243,7 +243,7 @@ export default class Table {
 
   revokeAllCardsFromBulkOfPlayer(
     player: Player | null,
-    destination: ('ownCards' | 'combinations' | 'discardPile')[] = []
+    destination: ('ownCards' | 'combinations' | 'discardPile')[] = [],
   ): boolean {
     const bulkOfPlayer = this.getBulkOfPlayer(player);
     if (bulkOfPlayer) {
@@ -272,7 +272,7 @@ export default class Table {
   }
 
   revokeAllCardsFromPlayersBulks(
-    destination: ('ownCards' | 'combinations')[] = []
+    destination: ('ownCards' | 'combinations')[] = [],
   ): boolean {
     const nullPlayerResult = this.playersBulks[0].cards.filter(c => {
       const added =
@@ -286,7 +286,7 @@ export default class Table {
     const result = this.playersBulks
       .slice(1)
       .map(b =>
-        this.revokeAllCardsFromBulkOfPlayer(b.player as Player, destination)
+        this.revokeAllCardsFromBulkOfPlayer(b.player as Player, destination),
       );
 
     return !nullPlayerResult.length && result.every(r => r);

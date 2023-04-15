@@ -36,7 +36,7 @@ class DeckConstructor {
               acc[2] = [...acc[2], ...acc[1][suitData.name].cards];
               return acc;
             },
-            [[], {}, []]
+            [[], {}, []],
           );
 
       this.openedTrumpCard = null;
@@ -52,7 +52,7 @@ class DeckConstructor {
           };
           return acc;
         },
-        {}
+        {},
       );
     };
   }
@@ -133,7 +133,7 @@ export default class Deck extends DeckConstructor {
   returnCardToDeck(
     card: Card | null,
     idxInTakenCards?: number | null,
-    toStart?: 'toStart'
+    toStart?: 'toStart',
   ): boolean {
     if (!(card instanceof Card)) return false;
 
@@ -175,7 +175,7 @@ export default class Deck extends DeckConstructor {
 
     if (!allValid) {
       throw new Error(
-        'The deck is compromised - some card is not a Card. Create new Deck.'
+        'The deck is compromised - some card is not a Card. Create new Deck.',
       );
     }
 
@@ -238,7 +238,7 @@ export default class Deck extends DeckConstructor {
     playersQty: number,
     cardsQtyToPlayer: number,
     buyInCardsQty?: number,
-    openTrumpCard?: boolean
+    openTrumpCard?: boolean,
   ): Card[][][] {
     this.returnAllCardsToDeck();
     const [plQ, caQ, buQ] = [
@@ -249,7 +249,7 @@ export default class Deck extends DeckConstructor {
 
     if (!plQ || !caQ) {
       throw new Error(
-        "playersQty, cardsQtyToPlayer aren't numbers or one/both of them is 0."
+        "playersQty, cardsQtyToPlayer aren't numbers or one/both of them is 0.",
       );
     }
     if (typeof buyInCardsQty !== 'undefined' && !buQ) {
@@ -262,7 +262,7 @@ export default class Deck extends DeckConstructor {
       throw new Error(
         `Not enough cards to deal (${
           plQ > 1 ? 'too many players' : 'one player wants impossible'
-        }).`
+        }).`,
       );
     }
 

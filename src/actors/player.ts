@@ -16,7 +16,7 @@ export default class Player {
   constructor(deck: Deck) {
     if (!(deck instanceof Deck)) {
       throw new Error(
-        'deck must be instance of Deck when creating new Player.'
+        'deck must be instance of Deck when creating new Player.',
       );
     }
     this.deck = deck;
@@ -221,7 +221,7 @@ export default class Player {
     const returnedToDeck = this.deck.returnCardToDeck(card, null, 'toStart');
     if (!returnedToDeck) {
       throw new Error(
-        'Card was taken from deck, player rejected it, and card failed to return back to deck.'
+        'Card was taken from deck, player rejected it, and card failed to return back to deck.',
       );
     }
     return true;
@@ -231,7 +231,7 @@ export default class Player {
     const returnedToOwnCards = this.addCardToOwnCards(card, cardIdx);
     if (!returnedToOwnCards) {
       throw new Error(
-        'Card was taken from player, deck rejected it, and card failed to return back to player.'
+        'Card was taken from player, deck rejected it, and card failed to return back to player.',
       );
     }
     return true;
@@ -249,7 +249,7 @@ export default class Player {
   // with the meaning 'card rejected by deck'
   returnCardToDeckOrReturnBackToOwnCards(
     card: Card,
-    cardIdx: number
+    cardIdx: number,
   ): true | Card {
     return this.deck.returnCardToDeck(card)
       ? true

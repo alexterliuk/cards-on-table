@@ -15,7 +15,7 @@ const isValidDeck = (
   deck: Deck,
   suitNamesLength = 0,
   allCardsLength = 0,
-  takenCardsLength = 0
+  takenCardsLength = 0,
 ) => {
   // prettier-ignore
   const result = [
@@ -151,7 +151,7 @@ describe(`Deck`, () => {
       equal(result, false);
       equal(
         origAllCards.every((c, i) => c === deck.allCards[i]),
-        true
+        true,
       );
       equal(deck.takenCards.length, 0);
     });
@@ -443,7 +443,7 @@ describe(`Deck`, () => {
       const allCardsState = copyCardsState(deck.allCards);
       const areAllCardsStatesEqual = (prev: CardValues[], curr: CardValues[]) =>
         prev.every((cardData, i) =>
-          cardData.every((val, y) => val === curr[i][y])
+          cardData.every((val, y) => val === curr[i][y]),
         );
 
       const suitsState = copySuitsState(deck.suitNames, deck);
@@ -452,7 +452,7 @@ describe(`Deck`, () => {
           if (suitData.name === curr[i].name) {
             return areAllCardsStatesEqual(
               suitData.cardsState,
-              curr[i].cardsState
+              curr[i].cardsState,
             );
           }
         });
@@ -508,7 +508,7 @@ describe(`Deck`, () => {
       // each player got: [ [6 cards], [/*empty arr for buy-in cards*/] ]
       equal(
         result.every(pl => pl[0].length === 6 && pl[0].every(c => isCard(c))),
-        true
+        true,
       );
     });
 
@@ -518,11 +518,11 @@ describe(`Deck`, () => {
       // each player got: [ [6 cards], [3 buy-in cards] ]
       equal(
         result.every(pl => pl[0].length === 6 && pl[0].every(c => isCard(c))),
-        true
+        true,
       );
       equal(
         result.every(pl => pl[1].length === 3 && pl[1].every(c => isCard(c))),
-        true
+        true,
       );
     });
   });

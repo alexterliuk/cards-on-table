@@ -480,7 +480,7 @@ describe(`Player`, () => {
         equal(player.ownCards.length, deck.takenCards.length);
         equal(
           deck.allCards.length + deck.takenCards.length,
-          copiedAllCards.length
+          copiedAllCards.length,
         );
         const idxInCopied1 = copiedAllCards.findIndex(c => c === card1);
         const idxInCopied2 = copiedAllCards.findIndex(c => c === card2);
