@@ -28,12 +28,12 @@ const deckCardsData: DeckCardsData = {
 
 export default deckCardsData;
 
-export interface DeckCardsData {
+export type DeckCardsData = {
   suitsData: SuitData[];
   trumpSuitCardsData: SuitCardsData;
-}
-export interface SuitData {
+};
+export type SuitData = {
   name: string;
   cardsData: SuitCardsData;
-}
+};
 export type SuitCardsData = Array<[string, number, number]>;

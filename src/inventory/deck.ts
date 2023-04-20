@@ -9,9 +9,9 @@ import {
 import getRandomFloor from '../lib/utils/get-random-floor';
 import areValidValsByInstance from '../lib/utils/are-valid-vals-by-instance';
 
-interface Suits {
+type Suits = {
   [x: string]: { name: string; cards: Card[] };
-}
+};
 
 class DeckConstructor {
   suitNames: string[] = [];

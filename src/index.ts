@@ -30,3 +30,10 @@ function createTable(deckCardsData: DeckCardsData, playerQty: number) {
 }
 
 export default cds;
+export {
+  DeckCardsData,
+  SuitData,
+  SuitCardsData,
+  CardValues,
+  SuitValues,
+} from './index.d';
