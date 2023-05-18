@@ -9,7 +9,7 @@ import areAllValsInTarget from '../lib/utils/are-all-vals-in-target';
  * - addSmth     - returns boolean
  * - getSmth     - returns smth
  * - takeSmth    - removes smth from where it is, and returns smth
- * - revokeSmth  - same as takeSmth but returns boolean
+ * - revokeSmth  - removes smth from where it is, and returns boolean
  */
 export default class Table {
   deck: Deck;
@@ -158,6 +158,15 @@ export default class Table {
     const takes = this.getTakes(player);
     if (areAllValsInTarget('absent', take, takes)) {
       takes.push(take);
+      return true;
+    }
+    return false;
+  }
+
+  addCardsToBuyInCards(cards: Card[], player: Player) {
+    const cornerOfPlayer = this.getCornerOfPlayer(player);
+    if (cornerOfPlayer !== null) {
+      cornerOfPlayer.buyInCards = cards.slice();
       return true;
     }
     return false;

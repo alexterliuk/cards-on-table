@@ -253,6 +253,20 @@ describe(`Table`, () => {
     });
   });
 
+  describe(`[addCardsToBuyInCards]`, () => {
+    it(`adds cards to buyInCards of a player's corner, returns true`, () => {
+      const { deck, player } = getDnP();
+      const table = new Table(deck, [player]);
+      const dealtCards = deck.deal(1, 4, 2);
+      const buyInCards = dealtCards[0][1];
+      const [c1, c2] = buyInCards;
+      const added = table.addCardsToBuyInCards(buyInCards, player);
+      equal(added, true);
+      equal(table.playersCorners[0].buyInCards[0], c1);
+      equal(table.playersCorners[0].buyInCards[1], c2);
+    });
+  });
+
   describe(`[addCardOrCombinationToBulkOfPlayer]`, () => {
     it(`adds a card and returns true`, () => {
       const { deck, player } = getDnP();
