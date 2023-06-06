@@ -233,7 +233,7 @@ export default class Deck extends DeckConstructor {
    *                 [[given cards], [buy-in cards]],
    *               ]
    */
-  // TODO: these all params should be moved to game rules (to Deck's constructor)
+  // params are same as DealingConfig (src/actors/dealer)
   deal(
     playersQty: number,
     cardsQtyToPlayer: number,
