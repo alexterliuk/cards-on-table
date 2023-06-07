@@ -1,5 +1,8 @@
+import Dealer from './actors/dealer';
 import Player from './actors/player';
+import Card from './inventory/card';
 import Deck from './inventory/deck';
+import Suit from './inventory/suit';
 import Table from './inventory/table';
 import { DeckCardsData } from './data/deck-cards-data';
 
@@ -37,3 +40,4 @@ export {
   CardValues,
   SuitValues,
 } from './index.d';
+export { Dealer, Player, Card, Deck, Suit, Table };
